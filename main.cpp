@@ -2,7 +2,7 @@
 #include"Levelset.h"
 #include<iostream>;
 using namespace std;
-main()
+int main()
 {
  	PIXTYPE *p=new PIXTYPE[100];
 	ImageF *raw2d=new ImageF(10,10,p);	
@@ -21,6 +21,8 @@ main()
 		
 	}
 	raw2d->guassConv(raw2d,2);
+	LevelSet *ls=new LevelSet();
+	ls->drlse_edge(*raw2d,*raw2d,1,1,1,1,1,2,"single-well");
 	p=raw2d->gety();
 	 i=0;
 	while (p[i])

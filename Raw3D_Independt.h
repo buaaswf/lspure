@@ -1,5 +1,6 @@
 #pragma once
 #define PIXTYPE unsigned char
+//#define PIXTYPE int
 class Raw3D;
 class Raw2D  {
 	private:   			//-----------------DATA----------------- 

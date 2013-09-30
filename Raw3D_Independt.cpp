@@ -671,8 +671,9 @@ void  Raw2D::guassConv(Raw2D *raw2d,int halfsize)
 				sum=255;
 			//s[i*width+j]=sum;
 			raw2d->putXY(i*width+j,sum);
-			PIXTYPE *y=raw2d->gety();
-			cout<<y[i*width+j]<<endl;
+			//PIXTYPE *y=raw2d->gety();
+			PIXTYPE test = s[i*width+j];
+			cout<<test<<" ";
 			cout<<sum<<endl;
 //	PIXTYPE *p=raw2d->gety();
 	}
