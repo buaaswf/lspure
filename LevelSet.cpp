@@ -13,13 +13,13 @@ LevelSet::~LevelSet(void)
 {
 }
 /*ImageF Dirac(ImageF x,float sigma);*/
-ImageF regFunction(ImageF &s,int m,int n);
+ImageF regFunction(ImageF s,int m,int n);
 ImageF operator+(ImageF x,ImageF y);
 ImageF operator+(ImageF x,float s);
-ImageF cos(ImageF &x);
-ImageF operator *(int p1,ImageF &x);
+ImageF cos(ImageF x);
+ImageF operator *(int p1,ImageF x);
 ImageF operator * (ImageF x,ImageF y);
-ImageF sin(ImageF &s);
+ImageF sin(ImageF s);
 ImageF Dirac(ImageF &x,float sigma)
 {
 	ImageF f=(1/2/sigma)*(cos(pi*x/sigma)+1);
@@ -87,8 +87,10 @@ ImageF operator &(ImageF &x,ImageF &y)
 	return x;
 
 }
-ImageF cos(ImageF &x)
+ImageF cos(ImageF &xdata)
 {
+	ImageF *x=new ImageF();
+	*x=xdata;
 	p=x.gety();
 	int m=x.getXsize();
 	int n=x.getYsize();
@@ -140,6 +142,8 @@ ImageF NeumannBoundCond(ImageF *img)
 
 ImageF ImageFSqrt(ImageF &x,ImageF &y)
 {
+// 	ImageF x=xdata;
+// 	ImageF y=ydata;
 	p=x.gety();
 	q=y.gety();
 	int m=x.getXsize();
@@ -190,10 +194,13 @@ ImageF operator * (ImageF x,ImageF y)
 	return x;
 
 }
-ImageF operator/(ImageF &x,ImageF& y)
+ImageF operator/(ImageF &xdata,ImageF& ydata)
 {
 /*array the corresponding position*/
-	
+/*
+	ImageF x=xdata;
+	ImageF y=ydata;*/
+
 	p=x.gety();
 	q=y.gety();
 	int m=x.getXsize();
@@ -329,6 +336,7 @@ ImageF del2(ImageF *phi)
 }
 ImageF regFunction(ImageF &s,int m,int n)
 {
+	
 	p=s.gety();
 	int l=s.getXsize();
 	int k=s.getYsize();
@@ -401,18 +409,19 @@ ImageF drlse_edge(ImageF phi_0,ImageF g,float lambda,float mu,float alfa,float e
 		ImageF *s=new ImageF();
 		*s=ImageFSqrt( *vx, *vy);
 		float smallNumber=1e-10;
-		ImageF *Nx,*Ny;
+		ImageF *Nx=new ImageF();
+		ImageF *Ny=new ImageF();
 		*Nx=*phi_x/(*s+smallNumber);
 		*Ny=*phi_y/(*s+smallNumber);
 		ImageF * curvature=new ImageF();
 		*curvature=div(*Nx,*Ny);
-		ImageF distRegTerm;
+		ImageF *distRegTerm=new ImageF();
 		if (strcmp(potentialFunction,"single-well"))
 			/*
 			compute distance regularization term in equation (13) 
 			with the single-well potential p1.
 			*/
-			distRegTerm= 4*del2(phi)-*curvature;
+			*distRegTerm= 4*del2(phi)-*curvature;
 		//printf("");
 
 		else if (strcmp(potentialFunction,"double-well"))

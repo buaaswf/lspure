@@ -1,7 +1,9 @@
 #pragma once
 #define PIXTYPE unsigned char
 //#define PIXTYPE int
+/*#include "Imagef.h"*/
 class Raw3D;
+class ImageF;
 class Raw2D  {
 	private:   			//-----------------DATA----------------- 
 	int xsize;		// # of pixels per scanline,
@@ -13,7 +15,7 @@ public:				//---------------init fcns-------------
 	Raw2D(void);// constructor for 'empty' Raw2Ds
 	~Raw2D(void);		// destructor; releases memory
 	void sizer(int ixsize, int iysize);	// get mem for rectangle of pixels
-void guassConv(Raw2D *raw2d,int halfsize);	//gauss filter
+Raw2D guassConv(Raw2D *raw2d,int halfsize);	//gauss filter
 	void sizer(Raw2D* src);					// get same amt. of mem as 'src'
 	int getXsize(void) {return xsize;};		// get # pixels per scanline
 	int getYsize(void) {return ysize;};		// get # of scanlines.

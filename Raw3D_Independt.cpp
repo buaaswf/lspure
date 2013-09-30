@@ -622,7 +622,7 @@ int k,kmax;
 	}
 }
 
-void  Raw2D::guassConv(Raw2D *raw2d,int halfsize)
+Raw2D  Raw2D::guassConv(Raw2D *raw2d,int halfsize)
 {
 	int i=0,N=5,j=0,m=0,n=0,width=0,length=0,index=0,sum=0;
 	int delta=1;
@@ -679,5 +679,5 @@ void  Raw2D::guassConv(Raw2D *raw2d,int halfsize)
 	}
 	}
 	//raw2d=new Raw2D(width,length,s);
-	//return raw2d;
+	return *raw2d;
 	}

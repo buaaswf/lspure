@@ -2,7 +2,7 @@
 #include"Levelset.h"
 #include<iostream>;
 using namespace std;
-int main()
+main()
 {
  	PIXTYPE *p=new PIXTYPE[100];
 	ImageF *raw2d=new ImageF(10,10,p);	
@@ -20,16 +20,19 @@ int main()
 		}
 		
 	}
-	raw2d->guassConv(raw2d,2);
+	//Raw2D *raw2dderive=static_cast<ImageF> *raw2d;
+	//raw2d->guassConv(raw2d,2);
 	LevelSet *ls=new LevelSet();
-	ls->drlse_edge(*raw2d,*raw2d,1,1,1,1,1,2,"single-well");
+	ls->drlse_edge(raw2d,raw2d->guassConv(raw2d,2),1,1,1,1,1,2,"single-well");
 	p=raw2d->gety();
 	 i=0;
+/*
 	while (p[i])
 	{
 		PIXTYPE test = p[i];
 		i++;
 		cout<<"no:"<<i<<"p[i]="<<p[i]<<endl;
-	}
+	}*/
+
 	 system("pause");
 }
