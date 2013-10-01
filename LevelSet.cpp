@@ -1,6 +1,8 @@
 #include "LevelSet.h"
-#include"ImageF.h"
+#include "Raw3D_Independt.h"
+
 #define pi 3.14
+#define ImageF Raw2D
 #include<math.h> ;
 PIXTYPE  *p,*q;
 int i,j;
@@ -13,7 +15,7 @@ LevelSet::~LevelSet(void)
 {
 }
 /*ImageF Dirac(ImageF x,float sigma);*/
-ImageF regFunction(ImageF s,int m,int n);
+Raw2D regFunction(ImageF s,int m,int n);
 ImageF operator+(ImageF x,ImageF y);
 ImageF operator+(ImageF x,float s);
 ImageF cos(ImageF x);
@@ -334,7 +336,7 @@ ImageF del2(ImageF *phi)
 
 	return *phi;
 }
-ImageF regFunction(ImageF &s,int m,int n)
+ImageF LevelSet::regFunction(ImageF &s,int m,int n)
 {
 	
 	p=s.gety();
