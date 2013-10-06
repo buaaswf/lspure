@@ -203,10 +203,10 @@ ImageF operator/(ImageF &xdata,ImageF& ydata)
 	ImageF x=xdata;
 	ImageF y=ydata;*/
 
-	p=x.gety();
-	q=y.gety();
-	int m=x.getXsize();
-	int n=x.getYsize();
+	p=xdata.gety();
+	q=ydata.gety();
+	int m=xdata.getXsize();
+	int n=xdata.getYsize();
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
@@ -215,7 +215,7 @@ ImageF operator/(ImageF &xdata,ImageF& ydata)
 		}
 
 	}
-	return x;
+	return xdata;
 
 }
 
@@ -236,7 +236,7 @@ ImageF operator/(ImageF x,float t)
 	return x;
 
 }
-ImageF operator+(ImageF x,float s)
+ImageF  operator+( ImageF  &x,float s)
 {
 	p=x.gety();
 	int m=x.getXsize();
