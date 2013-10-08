@@ -1,11 +1,15 @@
 //#include"Canny.h"
 #include"Levelset.h"
+#include"ImageF.h"
+#include"LevelSet.h"
+#include "Raw3D_Independt.h"
 #include<iostream>;
 using namespace std;
 main()
 {
  	PIXTYPE *p=new PIXTYPE[100];
-	ImageF *raw2d=new ImageF(10,10,p);	
+	Raw2D *raw2d=new Raw2D(10,10,p);
+	//Raw2d *raw2d =new Raw2d(10,10,p);	
 	PIXTYPE *y=NULL;
 	int i=0,j=0;
 
@@ -23,7 +27,8 @@ main()
 	//Raw2D *raw2dderive=static_cast<ImageF> *raw2d;
 	//raw2d->guassConv(raw2d,2);
 	LevelSet *ls=new LevelSet();
-	ls->drlse_edge(raw2d,raw2d->guassConv(raw2d,2),1,1,1,1,1,2,"single-well");
+	Raw2D *raw2dderive=raw2d->guassConv(raw2d,2);
+	ls->drlse_edge(*raw2d,*raw2dderive,1,1,1,1,1,2,"single-well");
 	p=raw2d->gety();
 	 i=0;
 /*

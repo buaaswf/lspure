@@ -3,7 +3,7 @@
 //#define PIXTYPE int
 /*#include "Imagef.h"*/
 class Raw3D;
-class ImageF;
+//class ImageF;
 class Raw2D  {
 	private:   			//-----------------DATA----------------- 
 	int xsize;		// # of pixels per scanline,
