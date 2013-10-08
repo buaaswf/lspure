@@ -6,16 +6,19 @@
 #include<math.h> ;
 PIXTYPE  *p,*q;
 int i,j;
+/*
 LevelSet::LevelSet(void)
 {
+
 }
+*/
 
 
 LevelSet::~LevelSet(void)
 {
 }
 /*ImageF Dirac(ImageF x,float sigma);*/
-Raw2D regFunction(ImageF s,int m,int n);
+Raw2D regFunction(ImageF &s,int m,int n);
 ImageF operator+(ImageF x,ImageF y);
 ImageF operator+(ImageF x,float s);
 ImageF cos(ImageF x);
@@ -24,7 +27,7 @@ ImageF operator * (ImageF x,ImageF y);
 ImageF sin(ImageF s);
 ImageF Dirac(ImageF &x,float sigma)
 {
-	ImageF f=(1/2/sigma)*(cos(pi*x/sigma)+1);
+	ImageF f=(1/2/sigma)*(cos(pi*(x/sigma))+1);
 	ImageF b=regFunction(x,sigma,-sigma);
 	f=f*b;
 	x=f;
@@ -336,7 +339,7 @@ ImageF del2(ImageF *phi)
 
 	return *phi;
 }
-ImageF LevelSet::regFunction(ImageF &s,int m,int n)
+ImageF regFunction(ImageF &s,int m,int n)
 {
 	
 	p=s.gety();
@@ -366,7 +369,7 @@ ImageF distReg_p2(ImageF *phi)
 	*phi_y=gradienty(phi);
 	//ImageF s=ImageFSqrt(((*phi_x)*(*phi_x)) + ((*phi_y)*(*phi_y)));
 	ImageF  s=ImageFSqrt(*phi_x,*phi_y);
-	ImageF a=regFunction(s,0,1);
+	ImageF a=regFunction(&s,0,1);
 	ImageF b=regFunction(s,0,1);//need to be changed.
 	ImageF ps=a*sin(2*pi*s)/(2*pi)+b*(s-1);
 	ImageF dps=regFunction(ps,0,0)*ps+regFunction(ps,0,0)/(regFunction(s,0,0)+regFunction(s,0,0));
