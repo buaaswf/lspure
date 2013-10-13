@@ -1,9 +1,11 @@
-#include "Raw3D_Independt.h"
+#include "vol_math_Raw3D_Independt.h"
 #include<math.h>
 #include <stdlib.h>
 #include <iostream>
 #include <stdio.h>
-//
+#include "cv.h"
+#include "highgui.h"
+
 #define BOOL int
 #define TRUE 1
 #define FALSE 0
@@ -19,11 +21,11 @@ Raw3D_Independt::~Raw3D_Independt(void)
 {
 }
  static float lgtt=log10(2.0f);
-Raw2D::Raw2D(void)
-{
-	xsize=0;
-	ysize=0;
-	y=NULL;
+ Raw2D::Raw2D()
+ {
+	 xsize=0;
+	 ysize=0;
+	 y=NULL;
 }
 #define M_EXP 2.7182818284590452353602874713527
  Raw2D::Raw2D(int xsize,int ysize,PIXTYPE *y)
@@ -34,10 +36,33 @@ Raw2D::Raw2D(void)
 	this->y=y;
 }
 
+ Raw2D::Raw2D( int xsize,int ysize )
+ {
+	 this->xsize=xsize;
+	 this->ysize=ysize;
+	 this->y=new PIXTYPE[xsize*ysize];
+ }
+
+ Raw2D::Raw2D( Raw2D *r)
+ {
+	 this->xsize=r->xsize;
+	 this->ysize=r->ysize;
+	 this->y=new PIXTYPE[xsize*ysize];
+	 memcpy(this->y,r->y,xsize*ysize);
+ }
+
+ Raw2D::Raw2D(Raw2D& r)
+ {
+	 this->xsize=r.xsize;
+	 this->ysize=r.ysize;
+	 this->y=new PIXTYPE[xsize*ysize];
+	 memcpy(this->y,r.y,xsize*ysize);
+ }
+
  Raw2D::~Raw2D(void)
  {
 	 if(this->y!=NULL)
-	delete [] this->y;
+		 delete [] this->y;
 	 y=NULL;
 	//cout<<"RAW2D is deconstruct"<<endl;
  }
@@ -622,39 +647,31 @@ int k,kmax;
 	}
 }
 
-Raw2D  Raw2D::guassConv(Raw2D *raw2d,int halfsize)
+void Raw2D::guassConv(Raw2D *raw2d,int halfsize)
 {
 	int i=0,N=5,j=0,m=0,n=0,width=0,length=0,index=0,sum=0;
 	int delta=1;
-	float weight=0,total=0;
-	float *g=new float[30];
-	
-	PIXTYPE * s=raw2d->gety();
+	//PIXTYPE * s=raw2d->gety();
 	width=getXsize();
 	length=getYsize();
+	PIXTYPE *guass=new PIXTYPE[width*length];
 
 	for (i=0;i<width;i++)
 	{
 		for (j=0;j<length;j++)
-		{				
-			index=0,sum=0;
+		{
+			sum=0;
 			float weight=0,total=0;
 			for( m=i-halfsize; m<i+halfsize; m++)
 			{
 				for(n=j-halfsize; n<j+halfsize; n++)
 				{
-					if( (i+m) >= 0 && (i+m) <width && (j+n) >=0 && (j+n) < length) 
-					//g[index]=exp((float)-(m^2+n^2)/(2*delta^2));
+					if( m >= 0 && m <=width && n>=0 && n <=length) 
 					{
-						g[index]=exp((float)-(m*m+n*n)/(2*delta*delta));
-						weight=g[index];
-						if (m*m+n*n!=0&&weight==0)
-						{
-							cout<<"weight"<<weight<<endl;
-						}
-						/*cout<<weight<<endl;*/
-						index++;
-						sum += weight*s[m*width+n];
+						//weight=exp((float)-((m-i)*(m-i)+(n-i)*(n-i))/(2*delta*delta));
+						weight=1/((m-i)*(m-i)+(n-i)*(n-i)+1);
+					//	sum += weight*s[m*length+n];
+						sum += weight*get(m,n);
 						total+=weight;
 					}
 					else 
@@ -662,22 +679,26 @@ Raw2D  Raw2D::guassConv(Raw2D *raw2d,int halfsize)
 						sum+=0;
 				}
 			}
-			//delete [] g;
-			if(sum!=0)
+
+			if(total!=0)
+			{	
 				sum /=total;//total is 1,regulation
-			else
-				sum+=s[i*width+j];
-			if(sum>255)
-				sum=255;
-			//s[i*width+j]=sum;
-			raw2d->putXY(i*width+j,sum);
-			//PIXTYPE *y=raw2d->gety();
-			PIXTYPE test = s[i*width+j];
-			cout<<test<<" ";
-			cout<<sum<<endl;
-//	PIXTYPE *p=raw2d->gety();
+				//else
+				//	sum+=s[i*length+j];
+				//if(sum>255)
+				//	sum=255;
+				//s[i*width+j]=sum;
+				guass[i*length+j]=sum;
+				//cout<<sum-s[i*length+j]<<endl;
+				cout<<sum-raw2d->get(i,j)<<endl;			
+			}
+			else 
+				//guass[i*length+j]=s[i*length+j];
+				raw2d->put(i,j,guass[i*length+j]);
+
+		}
 	}
-	}
-	//raw2d=new Raw2D(width,length,s);
-	return *raw2d;
-	}
+	//memcpy(s,guass,width*length);
+	raw2d->puty(guass);
+	delete[] guass;
+}

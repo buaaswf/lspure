@@ -1,43 +1,71 @@
-//#include"Canny.h"
-#include"Levelset.h"
 #include"ImageF.h"
-#include"LevelSet.h"
-#include "Raw3D_Independt.h"
-#include<iostream>;
+#include "vol_math_LevelSet.h"
+#include "cv.h"
+#include "highgui.h"
+#include<iostream>
+#include <crtdbg.h> 
 using namespace std;
-main()
+int main()
 {
- 	PIXTYPE *p=new PIXTYPE[100];
-	Raw2D *raw2d=new Raw2D(10,10,p);
-	//Raw2d *raw2d =new Raw2d(10,10,p);	
-	PIXTYPE *y=NULL;
-	int i=0,j=0;
-
-	for (i=0;i<10;i++)
+	int tmpFlag = _CrtSetDbgFlag( _CRTDBG_REPORT_FLAG );
+	tmpFlag |= _CRTDBG_LEAK_CHECK_DF; 
+	_CrtSetDbgFlag( tmpFlag ); 
+	IplImage *source=NULL;
+	source=cvLoadImage("E:\\geo\\levelset\\DRLSE_v0\\gourd.bmp",0);
+	//source=cvLoadImage("E:\\geo\\testbmps\\ls1.bmp",0);
+	if (source!=NULL)
 	{
-		for (j=0;j<10;j++)
-		{
-			raw2d->putXY(i*10+j,i+1);
-			y=raw2d->gety();
-			PIXTYPE test=p[i*10+j];
-
-		}
-		
+		cvNamedWindow("source",0);
+		cvShowImage("source",source);
+		cvWaitKey(0);
+		cvDestroyWindow("source");
 	}
-	//Raw2D *raw2dderive=static_cast<ImageF> *raw2d;
+	int x=source->height;
+	int y=source->width;
+	PIXTYPE *p=new PIXTYPE[x*y];
+	for (int i=0;i<x;i++)
+	{
+		for (int j=0;j<y;j++)
+		{
+			p[i*y+j]=CV_IMAGE_ELEM(source,uchar,i,j);
+		}
+	}
+
+	Raw2D *initial=new Raw2D(x,y);
+	Raw2D *raw2d=new Raw2D(x,y,p);
+	//cvReleaseImage(&source);
+
+	for (int i=0;i<x;i++)
+	{
+		for (int j=0;j<y;j++)
+		{
+			if(i<35&&i>25&&j<20&&j<25)
+				initial->putXY(i*y+j,255);
+			else initial->putXY(i*y+j,0);
+		}
+	}
+				
 	//raw2d->guassConv(raw2d,2);
 	LevelSet *ls=new LevelSet();
-	Raw2D *raw2dderive=raw2d->guassConv(raw2d,2);
-	ls->drlse_edge(*raw2d,*raw2dderive,1,1,1,1,1,2,"single-well");
-	p=raw2d->gety();
-	 i=0;
-/*
-	while (p[i])
+	char const *pt="single-well";
+	Raw2D *ret=new Raw2D(ls->drlse_edge(*initial,*raw2d,1.0,1.0,1.0,3.0,1,1,pt));
+	PIXTYPE *result;
+	result=ret->gety();
+	
+	for (int i=0;i<source->height;i++)
 	{
-		PIXTYPE test = p[i];
-		i++;
-		cout<<"no:"<<i<<"p[i]="<<p[i]<<endl;
-	}*/
+		for (int j=0;j<source->width;j++)
+		{
+			CV_IMAGE_ELEM(source,uchar,i,j)=result[i*source->width+j];
+		}
+	}
+	if (source!=NULL)
+	{
+		cvNamedWindow("source",0);
+		cvShowImage("source",source);
+		cvWaitKey(0);
+		cvDestroyWindow("source");
+	}
 
 	 system("pause");
 }

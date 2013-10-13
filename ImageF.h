@@ -1,6 +1,6 @@
 #pragma once
-#include"Raw3D_Independt.h"
-#define ImageF Raw2D;
+#include"vol_math_Raw3D_Independt.h"
+typedef Raw2D ImageF;
 /*
 class ImageF :public Raw2D
 {	

@@ -1,5 +1,9 @@
-#pragma once
-#define PIXTYPE unsigned char
+typedef  unsigned char PIXTYPE;
+#ifndef Raw2D_H
+#define Raw2D_H
+#include <iostream>
+using namespace std;
+
 //#define PIXTYPE int
 /*#include "Imagef.h"*/
 class Raw3D;
@@ -11,17 +15,25 @@ class Raw2D  {
 	PIXTYPE *y;		// 1D array of PIXTYPE that are accessed as a 2D array.
 	
 public:				//---------------init fcns-------------
-	Raw2D(int,int,PIXTYPE *);	
+	Raw2D(int,int,PIXTYPE *);
+	Raw2D(int,int);	
+	Raw2D(Raw2D* r);
+	Raw2D(Raw2D& r);
 	Raw2D(void);// constructor for 'empty' Raw2Ds
 	~Raw2D(void);		// destructor; releases memory
 	void sizer(int ixsize, int iysize);	// get mem for rectangle of pixels
-Raw2D guassConv(Raw2D *raw2d,int halfsize);	//gauss filter
+	void guassConv(Raw2D *raw2d,int halfsize);	//gauss filter
 	void sizer(Raw2D* src);					// get same amt. of mem as 'src'
 	int getXsize(void) {return xsize;};		// get # pixels per scanline
 	int getYsize(void) {return ysize;};		// get # of scanlines.
 	int wipecopy(Raw2D* src);			// copy, even with size mismatch change from bool swf 2013 4 16
 	void put(int ix, int iy, PIXTYPE val) {	// write 'val' at location ix,iy.
-		y[ix + xsize*iy] = val; 
+		if (iy + ysize*ix<xsize*ysize)
+		{
+			y[iy + ysize*ix] = val; 
+		}
+		else 
+			cout<<"out of size"<<endl;
 	};
 	inline PIXTYPE get(int ix, int iy) {	// read the value at ix,iy.
 		int index=ix + xsize*iy;
@@ -31,13 +43,23 @@ Raw2D guassConv(Raw2D *raw2d,int halfsize);	//gauss filter
 		return y[ixy];
 	};
 	void putXY(int ixy,PIXTYPE val){// write value at 1D address ixy
-		y[ixy] = val;
+		if (ixy<xsize*ysize)
+		{
+			y[ixy] = val;
+		}
+		else cout<<"out of size"<<endl;
+		
 	};
-	PIXTYPE *gety()
+	void puty(PIXTYPE *res)
 	{
-		return y;
-
+		memcpy(y,res,xsize*ysize);
+	
 	};
+	//PIXTYPE *gety()
+	//{
+	//	return y;
+
+	//};
 	//---------------Trilateral Filter fcns-------------
 
 	//Trilateral filter consisting of gradient filter, adaptive neighborhood
@@ -64,6 +86,10 @@ Raw2D guassConv(Raw2D *raw2d,int halfsize);	//gauss filter
 		Raw2D* fTheta, float sigmaCTheta, float sigmaRTheta); 
 	
 };
+#endif
+#ifndef Raw3D_H
+#define Raw3D_H
+
 class Raw3D {
 public:
 	Raw2D *z;	// dynam. allocated space for a set of Raw2D objects.
@@ -92,10 +118,13 @@ public:
 	};
 	void wipecopy(Raw3D& src);			// copy, resize as needed.
 };
+#endif
+#ifndef Raw3D_Independt_H
+#define Raw3D_Independt_H
 class Raw3D_Independt
 {
 public:
 	Raw3D_Independt(void);
 	~Raw3D_Independt(void);
 };
-
+#endif
