@@ -11,8 +11,10 @@ int main()
 	tmpFlag |= _CRTDBG_LEAK_CHECK_DF; 
 	_CrtSetDbgFlag( tmpFlag ); 
 	IplImage *source=NULL;
-	source=cvLoadImage("E:\\geo\\levelset\\DRLSE_v0\\gourd.bmp",0);
+	//source=cvLoadImage("E:\\geo\\levelset\\DRLSE_v0\\gourd.bmp",0);
+	source=cvLoadImage("G:\\geo hackthon\\geo\\levelset\\test.png",0);
 	//source=cvLoadImage("E:\\geo\\testbmps\\ls1.bmp",0);
+	//G:\geo hackthon\geo\levelset\DRLSE_v0
 	if (source!=NULL)
 	{
 		cvNamedWindow("source",0);
@@ -49,9 +51,24 @@ int main()
 	}
 
 	//raw2d->guassConv(raw2d,2);
+	Raw2D *data=new Raw2D(raw2d);
 	LevelSet *ls=new LevelSet();
 	char const *pt="single-well";
-	Raw2D *ret=new Raw2D(ls->drlse_edge(*initial,*raw2d,1.0,1.0,1.0,3.0,1,1,pt));
+	int iter_outer=10;
+	for (int i=0;i<iter_outer;i++)
+	{
+		*data=ls->drlse_edge(*initial,*raw2d,1.0,1.0,1.0,3.0,1,1,pt);
+
+
+	}
+	for (int i=0;i<iter_outer;i++)
+	{
+		*data=ls->drlse_edge(*initial,*raw2d,1.0,1.0,0,3.0,1,1,pt);
+
+
+	}
+
+	//Raw2D *ret=new Raw2D(ls->drlse_edge(*initial,*raw2d,1.0,1.0,1.0,3.0,1,1,pt));
 	PIXTYPE *result;
 	//result=ret->gety();
 	
@@ -59,7 +76,7 @@ int main()
 	{
 		for (int j=0;j<source->width;j++)
 		{
-			CV_IMAGE_ELEM(source,uchar,i,j)=ret->get(i,j);
+			CV_IMAGE_ELEM(source,uchar,i,j)=data->get(i,j);
 		}
 	}
 	if (source!=NULL)

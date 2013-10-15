@@ -2,7 +2,7 @@
 //#include <mbstring.h>
 #include <stdio.h>
 #include <math.h>
-# include "vol_math_trilateralfilter.h"
+//# include "vol_math_trilateralfilter.h"
 #include<iostream>
 using namespace std;
 image::image(int length,int height,int width)
