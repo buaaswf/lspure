@@ -50,13 +50,13 @@ int main()
 	char const *pt="single-well";
 	Raw2D *ret=new Raw2D(ls->drlse_edge(*initial,*raw2d,1.0,1.0,1.0,3.0,1,1,pt));
 	PIXTYPE *result;
-	result=ret->gety();
+	//result=ret->gety();
 	
 	for (int i=0;i<source->height;i++)
 	{
 		for (int j=0;j<source->width;j++)
 		{
-			CV_IMAGE_ELEM(source,uchar,i,j)=result[i*source->width+j];
+			CV_IMAGE_ELEM(source,uchar,i,j)=ret->get(i,j);
 		}
 	}
 	if (source!=NULL)

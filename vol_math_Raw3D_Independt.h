@@ -33,21 +33,23 @@ public:				//---------------init fcns-------------
 			y[iy + ysize*ix] = val; 
 		}
 		else 
-			cout<<"out of size"<<endl;
+			cout<<"out of size put"<<endl;
 	};
 	inline PIXTYPE get(int ix, int iy) {	// read the value at ix,iy.
 		int index=ix + xsize*iy;
 		return(y[index]); 
 	};
 	PIXTYPE getXY(int ixy){		// read value at 1D address ixy
-		return y[ixy];
+		if(ixy<xsize*ysize)
+		{return y[ixy];}
+		else cout<<"out of size get "<<endl;
 	};
 	void putXY(int ixy,PIXTYPE val){// write value at 1D address ixy
 		if (ixy<xsize*ysize)
 		{
 			y[ixy] = val;
 		}
-		else cout<<"out of size"<<endl;
+		else cout<<"out of size putxy"<<endl;
 		
 	};
 	void puty(PIXTYPE *res)

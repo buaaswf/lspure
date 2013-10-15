@@ -56,7 +56,7 @@ ImageF* gradientx(ImageF *g)
 			//*(g.gety()+i)=*(g.gety()+i-1)-*(g.gety()+i);
 			//*(p+j+i*m)=*(gg+j-1+i*m)-*(gg+j+i*m);
 			ret->put(i,j,(g->get(i,j-1)-g->get(i,j)));
-			ret->put(i,j,*(p+i*m+j));
+			ret->put(i,j,ret->get(i,j));
 		}
 	}
 	return ret;
@@ -77,7 +77,7 @@ ImageF* gradienty(ImageF* g )
 			//*(p+j+i*m)=*(gg+j-1+i*m)-*(gg+j+i*m);
 			ret->put(i,j,g->get(i,j-1)-g->get(i,j));
 			//*(g.gety()+i)=*(g.gety()+i-1)-*(g.gety()+i);
-			ret->put(i,j,*(p+i*m+j));
+			ret->put(i,j,g->get(i-1,j)-g->get(i,j));
 		}
 	}
 	return ret;
@@ -128,13 +128,13 @@ ImageF* NeumannBoundCond(ImageF *img)
 	//PIXTYPE *p=img->gety();
 	//g([1 nrow],[1 ncol]) = g([3 nrow-2],[3 ncol-2]);  
 	//p[0]=p[3*ncol+2];
-	img->putXY(0,img->getXY(3*ncol+2));
+	img->putXY(0,img->getXY(2*ncol+2));
 	//p[ncol-1]=p[3*ncol+ncol-3];
-	img->putXY(ncol-1,img->getXY(3*ncol+ncol-3));
+	img->putXY(ncol-1,img->getXY(2*ncol+ncol-3));
 	//p[nrow*(ncol-1)]=p[(ncol-2)*ncol+2];
-	img->putXY(nrow*(ncol-1),img->getXY((ncol-2)*ncol+2));
+	img->putXY(nrow*(ncol-1)-1,img->getXY((nrow-3)*ncol+2));
 	//p[nrow*ncol-1]=p[(nrow-2)*(ncol-2)-1];
-	img->putXY(nrow*ncol-1,img->getXY(nrow-2)*(ncol-2)-1);
+	img->putXY(nrow*ncol-1,img->getXY(nrow-2)*ncol-3-1);
 	//g([1 nrow],2:end-1) = g([3 nrow-2],2:end-1);  
 	for(i=1;i<nrow-2;i++)
 	{
@@ -148,15 +148,15 @@ ImageF* NeumannBoundCond(ImageF *img)
 	for(j=2;j<ncol-2;j++)
 	{
 		//p[ncol*(j-1)+1]=p[nrow*(j-1)+1];
-		img->putXY(ncol*(j-1)+1,img->getXY(nrow*(j-1)+1));
+		img->putXY(nrow*j-1,img->getXY(nrow*j-2));
 		//p[ncol*(j-1)+nrow-1]=p[nrow*(j-1)+nrow-1];
-		img->putXY(ncol*(j-1)+nrow-1,img->getXY(nrow*(j-1)+nrow-1));
+		img->putXY(nrow*j+nrow-2,img->getXY(nrow*j+nrow-1));
 	}
-	for (i=0;i<ncol;i++)
+	for (i=0;i<nrow;i++)
 	{
-		for(j=0;j<nrow;j++)
+		for(j=0;j<ncol;j++)
 		{
-			img->put(i,j,p[i*ncol+j]);
+			img->put(i,j,img->get(i,j));
 		}
 	}
 	return img;
@@ -204,15 +204,16 @@ ImageF& operator *(int p1,ImageF &x)
 }
 ImageF& operator * (ImageF &x,ImageF &y)
 {
-	PIXTYPE *p=x.gety();
-	PIXTYPE *q=y.gety();
+	//PIXTYPE *p=x.gety();
+	//PIXTYPE *q=y.gety();
 	int m=x.getXsize();
 	int n=x.getYsize();
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
-			*(p+i*n+j)=*(p+i*n+j)*(*(q+i*n+j));
+			//*(p+i*n+j)=*(p+i*n+j)*(*(q+i*n+j));
+			x.put(i,j,x.get(i,j)*y.get(i,j));
 		}
 
 	}
@@ -222,15 +223,16 @@ ImageF& operator * (ImageF &x,ImageF &y)
 ImageF* operator * (ImageF &x,ImageF *y)
 {
 
-	PIXTYPE *p=x.gety();
-	PIXTYPE *q=y->gety();
+	//PIXTYPE *p=x.gety();
+	//PIXTYPE *q=y->gety();
 	int n=x.getXsize();
 	int m=x.getYsize();
 	for (int i=0;i<n;i++)
 	{
 		for(int j=0;j<m;j++)
 		{
-			q[i*m+j]*=p[i*m+j];
+			//q[i*m+j]*=p[i*m+j];
+			y->put(i,j,x.get(i,j)*y->get(i,j));
 		}
 
 	}
@@ -244,16 +246,21 @@ ImageF& operator/(ImageF &xdata,ImageF& ydata)
 	ImageF x=xdata;
 	ImageF y=ydata;*/
 
-	p=xdata.gety();
-	q=ydata.gety();
+	//p=xdata.gety();
+	//q=ydata.gety();
 	int m=xdata.getXsize();
 	int n=xdata.getYsize();
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
-			if(*(q+i*n+j)!=0)
-				*(p+i*n+j)=*(p+i*n+j)/(*(q+i*n+j));
+			/*if(*(q+i*n+j)!=0)
+				*(p+i*n+j)=*(p+i*n+j)/(*(q+i*n+j));*/
+			if (ydata.get(i,j)!=0)
+			{
+				xdata.put(i,j,ydata.get(i,j)/ydata.get(i,j));
+
+			}
 		}
 
 	}
@@ -264,14 +271,15 @@ ImageF& operator/(ImageF &xdata,ImageF& ydata)
 ImageF& operator/(ImageF &x,float t)
 
 {
-	p=x.gety();
+	//p=x.gety();
 	int m=x.getXsize();
 	int n=x.getYsize();
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
-			*(p+i*n+j)=*(p+i*n+j)/(t+0.001);
+			//*(p+i*n+j)=*(p+i*n+j)/(t+0.001);
+			x.put(i,j,x.get(i,j)/t+0.001);
 		}
 
 	}
@@ -280,14 +288,15 @@ ImageF& operator/(ImageF &x,float t)
 }
 ImageF&  operator+( ImageF  &x,float s)
 {
-	p=x.gety();
+	//p=x.gety();
 	int m=x.getXsize();
 	int n=x.getYsize();
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
-			*(p+i*n+j)=*(p+i*n+j)+s;
+			//*(p+i*n+j)=*(p+i*n+j)+s;
+			x.put(i,j,x.get(i,j)+s);
 		}
 
 	}
@@ -301,15 +310,16 @@ ImageF& div(ImageF &x,ImageF &y)
 }
 ImageF& operator+(ImageF &x,ImageF &y)
 {
-	p=x.gety();
-	q=y.gety();
+	//p=x.gety();
+	//q=y.gety();
 	int m=x.getXsize();
 	int n=x.getYsize();
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
-			*(p+i*n+j)=*(p+i*n+j)+(*(q+i*n+j));
+			//*(p+i*n+j)=*(p+i*n+j)+(*(q+i*n+j));
+			x.put(i,j,x.get(i,j)+y.get(i,j));
 		}
 
 	}
@@ -318,15 +328,16 @@ ImageF& operator+(ImageF &x,ImageF &y)
 
 ImageF& operator -(ImageF &x,ImageF &y)
 {
-	p=x.gety();
-	q=y.gety();
+	//p=x.gety();
+	//q=y.gety();
 	int m=x.getXsize();
 	int n=x.getYsize();
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
-			*(p+i*n+j)=*(p+i*n+j)-(*(q+i*n+j));
+			//*(p+i*n+j)=*(p+i*n+j)-(*(q+i*n+j));
+			x.put(i,j,x.get(i,j)-y.get(i,j));
 		}
 
 	}
@@ -335,14 +346,15 @@ ImageF& operator -(ImageF &x,ImageF &y)
 
 ImageF& operator -(ImageF &x,int s)
 {
-	p=x.gety();
+	//p=x.gety();
 	int m=x.getXsize();
 	int n=x.getYsize();
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
-			*(p+i*n+j)=*(p+i*n+j)-s;
+			//*(p+i*n+j)=*(p+i*n+j)-s;
+			x.put(i,j,x.get(i,j)-s);
 		}
 
 	}
@@ -351,19 +363,21 @@ ImageF& operator -(ImageF &x,int s)
 ImageF* del2(ImageF *phi)
 {
 
-	p=phi->gety();
+	//p=phi->gety();
 
 
 	int m=phi->getXsize();
 	int n=phi->getYsize();
 	Raw2D *ret=new Raw2D(phi);
-	PIXTYPE *pt=ret->gety();
+	//PIXTYPE *pt=ret->gety();
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
 			if(i+1<=m&&j+1<=n&&i-1>=0&&j-1>=0)
-			*(p+i*n+j)=*(pt+i*n+j-1)+*(pt+(i-1)*n+j)+*(pt+i*n+j+1)+*(pt+(i+1)*n+j)-4**(pt+i*n+j);
+			//*(p+i*n+j)=*(pt+i*n+j-1)+*(pt+(i-1)*n+j)+*(pt+i*n+j+1)+*(pt+(i+1)*n+j)-4**(pt+i*n+j);
+			phi->put(i,j,ret->get(i,j-1)+ret->get(i-1,j)+ret->get(i,j+1)+ret->get(i+1,j)-4*ret->get(i,j));
+
 		}
 
 	}
@@ -385,18 +399,23 @@ ImageF* del2(ImageF *phi)
 ImageF& regFunction(ImageF &s,int m,int n)
 {
 
-	p=s.gety();
+	//p=s.gety();
 	int l=s.getXsize();
 	int k=s.getYsize();
-	for (i=0;i<=l;i++)
+	for (i=0;i<l;i++)
 	{
-		for(j=0;j<=k;j++)
+		for(j=0;j<k;j++)
 		{
-			if(*(p+i*k+j)>=m&&*(p+i*k+j)<=n)
+			/*if(*(p+i*k+j)>=m&&*(p+i*k+j)<=n)
 				*(p+i*k+j)=1;
 			else if(*(p+i*k+j)==m||*(p+i*k+j)==n)
 				*(p+i*k+j)=1;
-			else *(p+i*k+j)=0;
+			else *(p+i*k+j)=0;*/
+			if(s.get(i,j)>=m&&s.get(i,j)<=n)
+				s.put(i,j,1);
+			else if(s.get(i,j)==m||s.get(i,j)==n)
+				s.put(i,j,1);
+			else s.put(i,j,0);
 		}
 
 	}
@@ -426,14 +445,15 @@ ImageF* distReg_p2(ImageF *phi)
 ImageF& sin(ImageF &s)
 {
 	//overload sin
-	p=s.gety();
+	//p=s.gety();
 	int m=s.getXsize();
 	int n=s.getYsize();
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
-			(*(p+i*n+j))=(float)sin(float(*(p+i*n+j)));
+			//(*(p+i*n+j))=(float)sin(float(*(p+i*n+j)));
+			s.put(i,j,(float)sin(float(s.get(i,j))));
 		}
 
 	}
@@ -442,7 +462,7 @@ ImageF& sin(ImageF &s)
 void write(Raw2D &destImg)
 {
 	FILE *p=fopen("F:\\ls1.raw","ab+");
-	fwrite(destImg.gety(),sizeof(PIXTYPE),destImg.getXsize()*destImg.getYsize(),p);
+//	fwrite(destImg.gety(),sizeof(PIXTYPE),destImg.getXsize()*destImg.getYsize(),p);
 	fclose(p);
 }
 ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float alfa,float epsilon,int timestep, int iter,const char * potentialFunction)
@@ -527,7 +547,7 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 	return phi_0; 
 }
 void LevelSet::testout(Raw2D *ret){
-	PIXTYPE *test=ret->gety();
+	//PIXTYPE *test=ret->gety();
 	//memcpy(test,ret->gety(),100);
 
 int i=0;
@@ -536,6 +556,6 @@ while (i<100)
 {
 	//PIXTYPE test = p[i];
 	i++;
-	cout<<"no====>>:"<<i<<"p[i]="<<test[i]<<endl;
+	cout<<"no====>>:"<<i<<"p[i]="<<ret->getXY(i)<<endl;
 }
 }
