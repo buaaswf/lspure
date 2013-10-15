@@ -39,12 +39,15 @@ int main()
 	{
 		for (int j=0;j<y;j++)
 		{
-			if(i<35&&i>25&&j<20&&j<25)
+			if(i<25&&i>20&&j>20&&j<25)
 				initial->putXY(i*y+j,255);
 			else initial->putXY(i*y+j,0);
+			//cout<<initial->get(i,j)<<endl;
+			
 		}
+		cout<<endl;
 	}
-				
+
 	//raw2d->guassConv(raw2d,2);
 	LevelSet *ls=new LevelSet();
 	char const *pt="single-well";

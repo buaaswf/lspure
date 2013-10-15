@@ -56,7 +56,7 @@ ImageF* gradientx(ImageF *g)
 			//*(g.gety()+i)=*(g.gety()+i-1)-*(g.gety()+i);
 			//*(p+j+i*m)=*(gg+j-1+i*m)-*(gg+j+i*m);
 			ret->put(i,j,(g->get(i,j-1)-g->get(i,j)));
-			ret->put(i,j,ret->get(i,j));
+			//ret->put(i,j,ret->get(i,j));
 		}
 	}
 	return ret;
@@ -77,7 +77,7 @@ ImageF* gradienty(ImageF* g )
 			//*(p+j+i*m)=*(gg+j-1+i*m)-*(gg+j+i*m);
 			ret->put(i,j,g->get(i,j-1)-g->get(i,j));
 			//*(g.gety()+i)=*(g.gety()+i-1)-*(g.gety()+i);
-			ret->put(i,j,g->get(i-1,j)-g->get(i,j));
+			//ret->put(i,j,g->get(i-1,j)-g->get(i,j));
 		}
 	}
 	return ret;
@@ -364,8 +364,8 @@ ImageF* del2(ImageF *phi)
 {
 
 	//p=phi->gety();
-
-
+	Raw2D *ret2=new Raw2D(phi);
+	
 	int m=phi->getXsize();
 	int n=phi->getYsize();
 	Raw2D *ret=new Raw2D(phi);
@@ -376,7 +376,7 @@ ImageF* del2(ImageF *phi)
 		{
 			if(i+1<=m&&j+1<=n&&i-1>=0&&j-1>=0)
 			//*(p+i*n+j)=*(pt+i*n+j-1)+*(pt+(i-1)*n+j)+*(pt+i*n+j+1)+*(pt+(i+1)*n+j)-4**(pt+i*n+j);
-			phi->put(i,j,ret->get(i,j-1)+ret->get(i-1,j)+ret->get(i,j+1)+ret->get(i+1,j)-4*ret->get(i,j));
+			ret2->put(i,j,ret->get(i,j-1)+ret->get(i-1,j)+ret->get(i,j+1)+ret->get(i+1,j)-4*ret->get(i,j));
 
 		}
 
@@ -394,7 +394,7 @@ ImageF* del2(ImageF *phi)
 	}*/
 
 	//delete []pt;
-	return phi;
+	return ret2;
 }
 ImageF& regFunction(ImageF &s,int m,int n)
 {
@@ -461,9 +461,9 @@ ImageF& sin(ImageF &s)
 }
 void write(Raw2D &destImg)
 {
-	FILE *p=fopen("F:\\ls1.raw","ab+");
+	//FILE *p=fopen("F:\\ls1.raw","ab+");
 //	fwrite(destImg.gety(),sizeof(PIXTYPE),destImg.getXsize()*destImg.getYsize(),p);
-	fclose(p);
+	//fclose(p);
 }
 ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float alfa,float epsilon,int timestep, int iter,const char * potentialFunction)
 {
@@ -475,14 +475,13 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 		NeumannBoundCond(phi);
 		ImageF *vx=gradientx(&g);
 		ImageF *vy=gradienty(&g);
-		//(*vy)*(*vx);
+
 		ImageF *phi_x=gradientx(&g);
-		
+
 		ImageF *phi_y=gradienty(&g);
 
 
-		/*try
-		{*/
+
 		Raw2D *s=new Raw2D(m,n);
 
 		*s=ImageFSqrt( *vx, *vy);
@@ -520,30 +519,16 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 		Raw2D* areaTerm=new Raw2D(g*diracPhi); 
 		ImageF  *edgeTerm=new ImageF(m,n);
 		*edgeTerm=*diracPhi*(*vx**Nx+*vy**Ny) + *diracPhi*g*(*curvature);
-		//vx*vy;
+
 		*phi=*phi + timestep*(mu**distRegTerm + lambda**edgeTerm + alfa**areaTerm);
-		phi_0=*phi;
+		//phi_0=*distRegTerm;
 
 		
 
-
+		phi_0=*phi;
 		//}
-		//catch (std::bad_alloc)
-		//{
-		//	//delete[] s->gety();
-		//	//*s = NULL;
-		//	//return false;
-		//}
-	}
-	//i=0;
-	//PIXTYPE *p=phi_0.gety();
-	//while (i<100)
-	//{
-	//	//PIXTYPE test = p[i];
-	//	i++;
-	//	cout<<"no====>>:"<<i<<"p[i]="<<p[i]<<endl;
-	//}
-	write(phi_0);
+	}	
+	
 	return phi_0; 
 }
 void LevelSet::testout(Raw2D *ret){

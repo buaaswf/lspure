@@ -36,7 +36,8 @@ public:				//---------------init fcns-------------
 			cout<<"out of size put"<<endl;
 	};
 	inline PIXTYPE get(int ix, int iy) {	// read the value at ix,iy.
-		int index=ix + xsize*iy;
+		//int index=ix + xsize*iy;
+		int index=iy + ysize*ix;
 		return(y[index]); 
 	};
 	PIXTYPE getXY(int ixy){		// read value at 1D address ixy
