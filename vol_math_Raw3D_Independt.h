@@ -37,8 +37,11 @@ public:				//---------------init fcns-------------
 	};
 	inline PIXTYPE get(int ix, int iy) {	// read the value at ix,iy.
 		//int index=ix + xsize*iy;
-		int index=iy + ysize*ix;
-		return(y[index]); 
+		if(iy + ysize*ix<=xsize*ysize)
+		{int index=iy + ysize*ix;
+		return(y[index]); }
+		else 
+			cout<<"out of size get"<<endl;
 	};
 	PIXTYPE getXY(int ixy){		// read value at 1D address ixy
 		if(ixy<xsize*ysize)

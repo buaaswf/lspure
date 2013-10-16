@@ -666,7 +666,7 @@ void Raw2D::guassConv(Raw2D *raw2d,int halfsize)
 			{
 				for(n=j-halfsize; n<j+halfsize; n++)
 				{
-					if( m >= 0 && m <=width && n>=0 && n <=length) 
+					if( m >= 0 && m <width && n>=0 && n <length) 
 					{
 						//weight=exp((float)-((m-i)*(m-i)+(n-i)*(n-i))/(2*delta*delta));
 						weight=1/((m-i)*(m-i)+(n-i)*(n-i)+1);
@@ -690,7 +690,7 @@ void Raw2D::guassConv(Raw2D *raw2d,int halfsize)
 				//s[i*width+j]=sum;
 				guass[i*length+j]=sum;
 				//cout<<sum-s[i*length+j]<<endl;
-				cout<<sum-raw2d->get(i,j)<<endl;			
+				//cout<<sum-raw2d->get(i,j)<<endl;			
 			}
 			else 
 				//guass[i*length+j]=s[i*length+j];
