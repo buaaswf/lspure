@@ -41,8 +41,8 @@ int main()
 	{
 		for (int j=0;j<y;j++)
 		{
-			if(i>25&&i<30&&j>35&&j<45)
-				initial->putXY(i*y+j,20);
+			if(i>20&&i<30&&j>35&&j<45)
+				initial->putXY(i*y+j,255);
 			else initial->putXY(i*y+j,0);
 			//cout<<initial->get(i,j)<<endl;
 			
@@ -55,13 +55,13 @@ int main()
 	LevelSet *ls=new LevelSet();
 	ls->initialg(*raw2d);
 	char const *pt="single-well";
-	int iter_outer=1;
-	for (int i=0;i<iter_outer;i++)
-	{
-		*data=ls->drlse_edge(*initial,*raw2d,5.0,1.0,-3,1.5,1,iter_outer,pt);
+	int iter_outer=3;
+	//for (int i=0;i<iter_outer;i++)
+	//{
+		*data=ls->drlse_edge(*initial,*raw2d,5.0,1.0,-1,255,1,iter_outer,pt);
 
 
-	}
+	//}
 	/*========================================
 	alpha=0
 	
