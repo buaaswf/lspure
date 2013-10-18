@@ -1,5 +1,8 @@
 #include"ImageF.h"
 #include "vol_math_LevelSet.h"
+#include"levelset.h"
+
+
 #include "cv.h"
 #include "highgui.h"
 #include<iostream>
@@ -25,6 +28,7 @@ int main()
 	int x=source->height;
 	int y=source->width;
 	PIXTYPE *p=new PIXTYPE[x*y];
+	PIXTYPE *q=new PIXTYPE[x*y];
 	for (int i=0;i<x;i++)
 	{
 		for (int j=0;j<y;j++)
@@ -32,8 +36,8 @@ int main()
 			p[i*y+j]=CV_IMAGE_ELEM(source,uchar,i,j);
 		}
 	}
-
-	Raw2D *initial=new Raw2D(x,y);
+	
+	Raw2D *initial=new Raw2D(x,y,q);
 	Raw2D *raw2d=new Raw2D(x,y,p);
 	//cvReleaseImage(&source);
 
@@ -41,7 +45,7 @@ int main()
 	{
 		for (int j=0;j<y;j++)
 		{
-			if(i>20&&i<30&&j>35&&j<45)
+			if(i>25&&i<35&&j>40&&j<50)
 				initial->putXY(i*y+j,255);
 			else initial->putXY(i*y+j,0);
 			//cout<<initial->get(i,j)<<endl;
@@ -55,10 +59,10 @@ int main()
 	LevelSet *ls=new LevelSet();
 	ls->initialg(*raw2d);
 	char const *pt="single-well";
-	int iter_outer=3;
+	int iter_outer=10;
 	//for (int i=0;i<iter_outer;i++)
 	//{
-		*data=ls->drlse_edge(*initial,*raw2d,5.0,1.0,-1,255,1,iter_outer,pt);
+		*data=ls->drlse_edge(*initial,*raw2d,1.0,1,-3,60,1,iter_outer,pt);
 
 
 	//}
