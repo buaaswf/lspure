@@ -33,9 +33,9 @@ ImageF& sin(ImageF &s);
 ImageF* Dirac(ImageF *x,float sigma)
 {
 	ImageF *ret=new ImageF(x);
-	Raw2D *f=new Raw2D(((1.0/2.0)*sigma)*(cos(pi*((*ret/sigma)+1))));
+	Raw2D *f=new Raw2D((3*(1.0/2.0)/sigma)*(cos(pi*((*ret/sigma)))+1));
 	//Raw2D *f=new Raw2D(x);
-	ImageF *b=new Raw2D(regFunction(*ret,-sigma+120,sigma+120));
+	ImageF *b=new Raw2D(regFunction(*ret,-sigma,sigma));
 	*f=*f**b;
 
 	ret=f;
@@ -205,6 +205,26 @@ ImageF& ImageFSqrt(ImageF &x,ImageF &y)
 
 }
 ImageF& operator *(int p1,ImageF &x)
+{
+
+	//p=x.gety();
+	ImageF *ret=new ImageF(x);
+	int m=x.getXsize();
+	int n=x.getYsize();
+	for (i=0;i<m;i++)
+	{
+		for(j=0;j<n;j++)
+		{
+			//*(p+i*n+j)=*(p+i*n+j)*p1;
+			ret->put(i,j,x.get(i,j)*p1);
+		}
+
+	}
+	return *ret;
+
+}
+
+ImageF& operator *(float p1,ImageF &x)
 {
 
 	//p=x.gety();
@@ -567,6 +587,7 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 	ImageF *vy=gradienty(&g);
 	for(int i=0;i<iter;i++)
 	{
+		//phi_0=*phi;
 		NeumannBoundCond(phi);
 		ImageF &phi_x=*gradientx(phi);
 		ImageF &phi_y=*gradienty(phi);
@@ -579,10 +600,10 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 
 		//*Nx=pow(255,phi_x/(*s+smallNumber));
 		//*Ny=pow(255,phi_y/(*s+smallNumber));
-		/**Nx=255*(phi_x/(*s+smallNumber));
-		*Ny=255*(phi_y/(*s+smallNumber));*/
-		*Nx=(phi_x/(*s+smallNumber));
-		*Ny=(phi_y/(*s+smallNumber));
+		*Nx=255*(phi_x/(*s+smallNumber));
+		*Ny=255*(phi_y/(*s+smallNumber));
+		//*Nx=(phi_x/(*s+smallNumber));
+		//*Ny=(phi_y/(*s+smallNumber));
 		ImageF * curvature=new ImageF(m,n);
 		*curvature=div(*Nx,*Ny);
 		ImageF *distRegTerm=new ImageF(m,n);
@@ -617,9 +638,13 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 		//phi_0=4**del2(phi);
 		//phi_0=*phi;
 		*phi=*phi + timestep*(mu**distRegTerm +lambda**edgeTerm + alfa**areaTerm);
-		phi_0=*diracPhi;
+		phi_0=*phi;
 
-		
+		/************************************************************************/
+		/* 	//dirac OK，Nx 有问题了aaaa		
+                                                                     */
+		/************************************************************************/
+
 
 		//phi_0=*distRegTerm ;
 		//}
