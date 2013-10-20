@@ -59,10 +59,10 @@ int main()
 	LevelSet *ls=new LevelSet();
 	ls->initialg(*raw2d);
 	char const *pt="single-well";
-	int iter_outer=14;
+	int iter_outer=2;
 	//for (int i=0;i<iter_outer;i++)
 	//{
-		*data=ls->drlse_edge(*initial,*raw2d,5.0,0.5,-3,1.5,1,iter_outer,pt);
+		*data=ls->drlse_edge(*initial,*raw2d,5.0,0.8,-3,1.5,1,iter_outer,pt);
 
 
 	//}

@@ -33,9 +33,9 @@ ImageF& sin(ImageF &s);
 ImageF* Dirac(ImageF *x,float sigma)
 {
 	ImageF *ret=new ImageF(x);
-	Raw2D *f=new Raw2D((3*(1.0/2.0)/sigma)*(cos(pi*((*ret/sigma)))+1));
+	Raw2D *f=new Raw2D(3*((1.0/2.0)/sigma)*(cos(pi*(*ret/sigma))+1));
 	//Raw2D *f=new Raw2D(x);
-	ImageF *b=new Raw2D(regFunction(*ret,-sigma,sigma));
+	ImageF *b=new Raw2D(regFunction(*ret,225,255));
 	*f=*f**b;
 
 	ret=f;
@@ -155,7 +155,7 @@ ImageF* NeumannBoundCond(ImageF *img)
 	//p[nrow*ncol-1]=p[(nrow-2)*(ncol-2)-1];
 	img->putXY(nrow*ncol-1,img->getXY(nrow-2)*ncol-3-1);
 	//g([1 nrow],2:end-1) = g([3 nrow-2],2:end-1);  
-	for(i=1;i<nrow-2;i++)
+	for(i=2;i<nrow-2;i++)
 	{
 		//p[i]=p[3*ncol+i];
 		img->putXY(i,img->getXY(3*ncol+i));
@@ -340,7 +340,7 @@ ImageF& operator/(float t,ImageF &x)
 		for(j=0;j<n;j++)
 		{
 			//*(p+i*n+j)=*(p+i*n+j)/(t+0.001);
-			x.put(i,j,t/x.get(i,j)+0.001);
+			x.put(i,j,t/(x.get(i,j)+0.001));
 		}
 
 	}
@@ -636,9 +636,9 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 		//*edgeTerm=255**diracPhi*(*vx**Nx+*vy**Ny) +255**diracPhi*g*(*curvature);
 		*edgeTerm=*diracPhi*(*vx**Nx+*vy**Ny) +*diracPhi*g*(*curvature);
 		//phi_0=4**del2(phi);
-		//phi_0=*phi;
-		*phi=*phi + timestep*(mu**distRegTerm +lambda**edgeTerm + alfa**areaTerm);
 		phi_0=*phi;
+		*phi=*phi + timestep*(mu**distRegTerm +lambda**edgeTerm + alfa**areaTerm);
+		//phi_0=4**del2(phi);
 
 		/************************************************************************/
 		/* 	//dirac OK，Nx 有问题了aaaa		
