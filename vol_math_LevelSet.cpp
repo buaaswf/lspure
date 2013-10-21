@@ -84,20 +84,22 @@ ImageF* gradienty(ImageF* g )
 	int i,j;
 	//PIXTYPE *gg=(*g).gety();
 	//PIXTYPE *p=(*ret).gety();
-	for(i=0;i<n-1;i++)
+	for(i=0;i<n;i++)
 	{
-		for(j=0;j<m-1;j++)
+		for(j=0;j<m;j++)
 		{
-			if (g->get(i,j+1)-g->get(i,j)>0)
+			if (i+1<n&&j+1<m)
 			{
-				ret->put(i,j,(g->get(i,j+1)-g->get(i,j)));
-			}
-			else if (g->get(i,j+1)-g->get(i,j)<0)
-			{
-				ret->put(i,j+1,(-g->get(i,j+1)+g->get(i,j)));
-			}
+				if (g->get(i,j+1)-g->get(i,j)>0)
+				{
+					ret->put(i,j,(g->get(i,j+1)-g->get(i,j)));
+				}
+				else if (g->get(i,j+1)-g->get(i,j)<0)
+				{
+					ret->put(i,j+1,(-g->get(i,j+1)+g->get(i,j)));
+				}
 		
-			
+			}
 
 		}
 	}
@@ -153,23 +155,23 @@ ImageF* NeumannBoundCond(ImageF *img)
 	//p[nrow*(ncol-1)]=p[(ncol-2)*ncol+2];
 	img->putXY(nrow*(ncol-1)-1,img->getXY((nrow-3)*ncol+2));
 	//p[nrow*ncol-1]=p[(nrow-2)*(ncol-2)-1];
-	img->putXY(nrow*ncol-1,img->getXY(nrow-2)*ncol-3-1);
+	img->putXY(nrow*ncol-1,img->getXY(nrow-2)*ncol-2-1);
 	//g([1 nrow],2:end-1) = g([3 nrow-2],2:end-1);  
-	for(i=2;i<nrow-2;i++)
+	for(i=1;i<nrow-1;i++)
 	{
 		//p[i]=p[3*ncol+i];
-		img->putXY(i,img->getXY(3*ncol+i));
+		img->putXY((i-1)*ncol,img->getXY((i-1)*ncol+2));
 		//p[(ncol-1)*nrow+i-1]=p[(ncol-2)*nrow+i];//
-		img->putXY((ncol-1)*nrow+i-1,img->getXY((ncol-2)*nrow+i));
+		img->putXY(ncol*(i-1)+ncol-1,img->getXY(ncol*(i-1)-3));
 	
 	}
 	//g(2:end-1,[1 ncol]) = g(2:end-1,[3 ncol-2]);  	
-	for(j=2;j<ncol-2;j++)
+	for(j=1;j<ncol-1;j++)
 	{
 		//p[ncol*(j-1)+1]=p[nrow*(j-1)+1];
-		img->putXY(nrow*j-1,img->getXY(nrow*j-2));
+		img->putXY(j,img->getXY(2*ncol+j));
 		//p[ncol*(j-1)+nrow-1]=p[nrow*(j-1)+nrow-1];
-		img->putXY(nrow*j+nrow-2,img->getXY(nrow*j+nrow-1));
+		img->putXY(ncol*(nrow-2)+j,img->getXY(ncol*(nrow-4)+j));
 	}
 	for (i=0;i<nrow;i++)
 	{
@@ -636,16 +638,10 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 		//*edgeTerm=255**diracPhi*(*vx**Nx+*vy**Ny) +255**diracPhi*g*(*curvature);
 		*edgeTerm=*diracPhi*(*vx**Nx+*vy**Ny) +*diracPhi*g*(*curvature);
 		//phi_0=4**del2(phi);
-		phi_0=*phi;
+		phi_0=phi_x+phi_y;
 		*phi=*phi + timestep*(mu**distRegTerm +lambda**edgeTerm + alfa**areaTerm);
 		//phi_0=4**del2(phi);
-
-		/************************************************************************/
-		/* 	//dirac OK，Nx 有问题了aaaa		
-                                                                     */
-		/************************************************************************/
-
-
+		//phi_0=*phi;
 		//phi_0=*distRegTerm ;
 		//}
 	}	
