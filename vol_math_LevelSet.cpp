@@ -33,7 +33,7 @@ ImageF& sin(ImageF &s);
 ImageF* Dirac(ImageF *x,float sigma)
 {
 	ImageF *ret=new ImageF(x);
-	Raw2D *f=new Raw2D(3*((1.0/2.0)/sigma)*(cos(pi*(*ret/sigma))+1));
+	Raw2D *f=new Raw2D(3*((1.0/2.0)/sigma)*(cos(3.14*(*ret/sigma))+1));
 	//Raw2D *f=new Raw2D(x);
 	ImageF *b=new Raw2D(regFunction(*ret,225,255));
 	*f=*f**b;
@@ -47,17 +47,14 @@ ImageF* gradientx(ImageF *g)
 {
 	int n=g->getXsize();
 	int m=g->getYsize();
-	Raw2D* ret=new Raw2D(g);
+	Raw2D* ret=new Raw2D(g->getXsize(),g->getYsize());
 	int i,j;
-	//PIXTYPE *gg;//=g->gety();
-	PIXTYPE *p;//=ret->gety();
+
 	for(int i=0;i<n;i++)
 	{
 		for(j=0;j<m;j++)
 		{
-			//*(p+i)=*(p+i-1)-*(p+i);
-			//*(g.gety()+i)=*(g.gety()+i-1)-*(g.gety()+i);
-			//*(p+j+i*m)=*(gg+j-1+i*m)-*(gg+j+i*m);
+
 			if (i+1<n&&j+1<m)
 			{
 		
@@ -69,14 +66,103 @@ ImageF* gradientx(ImageF *g)
 				{
 					ret->put(i+1,j,(-g->get(i+1,j)+g->get(i,j)));
 				}
-				//ret->put(i,j,ret->get(i,j));
+			else ret->put(i,j,0);
+			}
+		else ret->put(i,j,0);
+		}
+	}
+	return ret;
+}
+ImageF* gradientxg(ImageF *g)
+{
+	int n=g->getXsize();
+	int m=g->getYsize();
+	Raw2D* ret=new Raw2D(g);
+	int i,j;
+
+	for(int i=0;i<n;i++)
+	{
+		for(j=0;j<m;j++)
+		{
+
+			if (i+1<n&&j+1<m)
+			{
+
+				if (g->get(i+1,j)-g->get(i,j)>0)
+				{
+					ret->put(i,j,(g->get(i+1,j)-g->get(i,j)));
+				}
+				else if (g->get(i+1,j)-g->get(i,j)<0)
+				{
+					ret->put(i+1,j,(-g->get(i+1,j)+g->get(i,j)));
+				}
+				//else ret->put(i,j,0);
 			}
 		}
 	}
 	return ret;
 }
-
+//ImageF* gradientxg(ImageF *g)
+//{
+//	int n=g->getXsize();
+//	int m=g->getYsize();
+//	Raw2D* ret=new Raw2D(g);
+//	int i,j;
+//	int temp1,temp2;
+//
+//	for(int i=0;i<n;i++)
+//	{
+//		for(j=0;j<m;j++)
+//		{
+//
+//			if(j>0)
+//				temp1=j-1;
+//			else 
+//				temp1=0;
+//			if(j<m-1)
+//				temp2=j+1;
+//			else 
+//				temp2=m-1;
+//			ret->put(i,j,(g->get(i,temp2)-g->get(i,temp1))/2.0);
+//
+//		
+//
+//
+//		}
+//	}
+//	return ret;
+//}
 ImageF* gradienty(ImageF* g )
+{
+	int n=g->getXsize();
+	int m=g->getYsize();
+	ImageF* ret=new ImageF(g->getXsize(),g->getYsize());
+	int i,j;
+	//PIXTYPE *gg=(*g).gety();
+	//PIXTYPE *p=(*ret).gety();
+	for(i=0;i<n;i++)
+	{
+		for(j=0;j<m;j++)
+		{
+			if (i+1<n&&j+1<m)
+			{
+				if (g->get(i,j+1)-g->get(i,j)>0)
+				{
+					ret->put(i,j,(g->get(i,j+1)-g->get(i,j)));
+				}
+				else if (g->get(i,j+1)-g->get(i,j)<0)
+				{
+					ret->put(i,j+1,(-g->get(i,j+1)+g->get(i,j)));
+				}
+				else ret->put(i,j,0);
+			}
+		else ret->put(i,j,0);
+		}
+	}
+	return ret;
+
+}
+ImageF* gradientyg(ImageF* g )
 {
 	int n=g->getXsize();
 	int m=g->getYsize();
@@ -98,7 +184,7 @@ ImageF* gradienty(ImageF* g )
 				{
 					ret->put(i,j+1,(-g->get(i,j+1)+g->get(i,j)));
 				}
-		
+				//else ret->put(i,j,0);
 			}
 
 		}
@@ -106,6 +192,37 @@ ImageF* gradienty(ImageF* g )
 	return ret;
 
 }
+
+//ImageF* gradienty(ImageF *g)
+//{
+//	int n=g->getXsize();
+//	int m=g->getYsize();
+//	Raw2D* ret=new Raw2D(g);
+//	int i,j;
+//	int temp1,temp2;
+//
+//	for(int i=0;i<n;i++)
+//	{
+//		for(j=0;j<m;j++)
+//		{
+//
+//			if(i>0)
+//				temp1=i-1;
+//			else 
+//				temp1=0;
+//			if(i<n-1)
+//				temp2=i+1;
+//			else 
+//				temp2=n-1;
+//			ret->put(i,j,(g->get(temp2,j)-g->get(temp1,j))/2.0);
+//
+//
+//
+//
+//		}
+//	}
+//	return ret;
+//}
 //ImageF& operator &(ImageF &x,ImageF &y)
 //{
 //	int i,j,n,m;
@@ -146,31 +263,22 @@ ImageF* NeumannBoundCond(ImageF *img)
 	int nrow=img->getXsize();
 	int ncol=img->getYsize();
 	int i,j;
-	//PIXTYPE *p=img->gety();
-	//g([1 nrow],[1 ncol]) = g([3 nrow-2],[3 ncol-2]);  
-	//p[0]=p[3*ncol+2];
+	//the four point SDF
 	img->putXY(0,img->getXY(2*ncol+2));
-	//p[ncol-1]=p[3*ncol+ncol-3];
-	img->putXY(ncol-1,img->getXY(2*ncol+ncol-3));
-	//p[nrow*(ncol-1)]=p[(ncol-2)*ncol+2];
-	img->putXY(nrow*(ncol-1)-1,img->getXY((nrow-3)*ncol+2));
-	//p[nrow*ncol-1]=p[(nrow-2)*(ncol-2)-1];
-	img->putXY(nrow*ncol-1,img->getXY(nrow-2)*ncol-2-1);
-	//g([1 nrow],2:end-1) = g([3 nrow-2],2:end-1);  
-	for(i=1;i<nrow-1;i++)
+	img->putXY(ncol-1,img->get(2,ncol-3));
+	img->putXY((nrow-1)*ncol,img->getXY((nrow-3)*ncol+2));
+	img->putXY(nrow*ncol-1,img->get(nrow-3,ncol-3));
+	//first and the last column SDF
+	for(i=2;i<nrow-2;i++)
 	{
-		//p[i]=p[3*ncol+i];
 		img->putXY((i-1)*ncol,img->getXY((i-1)*ncol+2));
-		//p[(ncol-1)*nrow+i-1]=p[(ncol-2)*nrow+i];//
 		img->putXY(ncol*(i-1)+ncol-1,img->getXY(ncol*(i-1)-3));
 	
 	}
-	//g(2:end-1,[1 ncol]) = g(2:end-1,[3 ncol-2]);  	
-	for(j=1;j<ncol-1;j++)
+	//first and last row SDF
+	for(j=2;j<ncol-2;j++)
 	{
-		//p[ncol*(j-1)+1]=p[nrow*(j-1)+1];
 		img->putXY(j,img->getXY(2*ncol+j));
-		//p[ncol*(j-1)+nrow-1]=p[nrow*(j-1)+nrow-1];
 		img->putXY(ncol*(nrow-2)+j,img->getXY(ncol*(nrow-4)+j));
 	}
 	for (i=0;i<nrow;i++)
@@ -323,7 +431,7 @@ ImageF& operator/(ImageF &x,float t)
 		{
 			//*(p+i*n+j)=*(p+i*n+j)/(t+0.001);
 			temp=x.get(i,j)/t;
-			if(temp=0)
+			if(temp!=0)
 			ret->put(i,j,temp);
 		}
 
@@ -450,37 +558,23 @@ ImageF & operator/(ImageF &x,ImageF &y)
 ImageF* del2(ImageF *phi)
 {
 
-	//p=phi->gety();
-	Raw2D *ret2=new Raw2D(phi);
-	
 	int m=phi->getXsize();
 	int n=phi->getYsize();
+	Raw2D *ret2=new Raw2D(m,n);
+
 	Raw2D *ret=new Raw2D(phi);
-	//PIXTYPE *pt=ret->gety();
+
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
 			if(i+1<m&&j+1<n&&i-1>=0&&j-1>=0)
-			//*(p+i*n+j)=*(pt+i*n+j-1)+*(pt+(i-1)*n+j)+*(pt+i*n+j+1)+*(pt+(i+1)*n+j)-4**(pt+i*n+j);
 			ret2->put(i,j,ret->get(i+1,j)+ret->get(i-1,j)+ret->get(i,j+1)+ret->get(i,j-1)-4*ret->get(i,j));
+			else ret2->put(i,j,0);
 
 		}
 
 	}
-	//ImageF phi_x=gradientx(phi);
-	//ImageF phi_y=gradienty(phi);
-	/*
-	for (i=0;i<m;i++)
-	{
-	for(j=0;j<n;j++)
-	{
-	*(pt+i*n+j)=*(p+i*n+j-1)+*(p+(i-1)*n+j)+*(p+i*n+j+1)+*(p+(i+1)*n+j)-4**(p+i*n+j);
-	}
-
-	}*/
-
-	//delete []pt;
 	return ret2;
 }
 ImageF& regFunction(ImageF &s,int m,int n)
@@ -511,12 +605,13 @@ ImageF& regFunction(ImageF &s,int m,int n)
 }
 ImageF* distReg_p2(ImageF *phi)
 {
+	Raw2D *ret=new Raw2D(phi);
 	int m=phi->getXsize();
 	int n=phi->getYsize();
-	Raw2D *phi_x=new Raw2D(m,n);
-	ImageF *phi_y=new ImageF(m,n);
-	phi_x=gradientx(phi);
-	phi_y=gradienty(phi);
+	Raw2D *phi_x=new Raw2D(gradientx(phi));
+	ImageF *phi_y=new ImageF(gradienty(phi));
+	//phi_x=;
+	//phi_y=;
 	//ImageF s=ImageFSqrt(((*phi_x)*(*phi_x)) + ((*phi_y)*(*phi_y)));
 	ImageF  s=ImageFSqrt(*phi_x,*phi_y);
 	ImageF a=regFunction(s,0,1);
@@ -524,9 +619,9 @@ ImageF* distReg_p2(ImageF *phi)
 	ImageF ps=a*sin(2*s)/(2*pi)+b*(s-1);
 	ImageF dps=regFunction(ps,0,0)*ps+regFunction(ps,0,0)/(regFunction(s,0,0)+regFunction(s,0,0));
 	ImageF f=div(dps**phi_x-*phi_x,dps**phi_y-*phi_y)+4**del2(phi);
-	*phi=f;
+	*ret=f;
 	//ImageF b=(s>1);
-	return phi;
+	return ret;
 }
 ImageF& sin(ImageF &s)
 {
@@ -555,8 +650,8 @@ void write(Raw2D &destImg)
 ImageF& LevelSet::initialg(ImageF &g)
 {
 	ImageF *ret=new ImageF(&g);
-	ImageF *gx=gradientx(ret);
-	ImageF *gy=gradienty(ret);
+	ImageF *gx=gradientxg(ret);
+	ImageF *gy=gradientyg(ret);
 	//g=*ret;
 	g=*gx**gx+*gy**gy;
 	//g=(255/(g+1));//or  
@@ -585,11 +680,10 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 	ImageF *phi=new ImageF(&phi_0);
 	int m=g.getXsize();
 	int n=g.getYsize();
-	ImageF *vx=gradientx(&g);
-	ImageF *vy=gradienty(&g);
+	ImageF *vx=gradientxg(&g);
+	ImageF *vy=gradientyg(&g);
 	for(int i=0;i<iter;i++)
 	{
-		//phi_0=*phi;
 		NeumannBoundCond(phi);
 		ImageF &phi_x=*gradientx(phi);
 		ImageF &phi_y=*gradienty(phi);
@@ -602,8 +696,8 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 
 		//*Nx=pow(255,phi_x/(*s+smallNumber));
 		//*Ny=pow(255,phi_y/(*s+smallNumber));
-		*Nx=255*(phi_x/(*s+smallNumber));
-		*Ny=255*(phi_y/(*s+smallNumber));
+		*Nx=(phi_x/(*s+smallNumber));
+		*Ny=(phi_y/(*s+smallNumber));
 		//*Nx=(phi_x/(*s+smallNumber));
 		//*Ny=(phi_y/(*s+smallNumber));
 		ImageF * curvature=new ImageF(m,n);
@@ -618,7 +712,6 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 		 with the single-well potential p1.
 		 */
 			*distRegTerm= (4**del2(phi)-*curvature);
-			//printf("");
 		}
 
 		else if (strcmp(potentialFunction,"double-well")+1)
@@ -637,15 +730,12 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 		ImageF  *edgeTerm=new ImageF(m,n);
 		//*edgeTerm=255**diracPhi*(*vx**Nx+*vy**Ny) +255**diracPhi*g*(*curvature);
 		*edgeTerm=*diracPhi*(*vx**Nx+*vy**Ny) +*diracPhi*g*(*curvature);
-		//phi_0=4**del2(phi);
-		phi_0=phi_x+phi_y;
-		*phi=*phi + timestep*(mu**distRegTerm +lambda**edgeTerm + alfa**areaTerm);
-		//phi_0=4**del2(phi);
 		//phi_0=*phi;
-		//phi_0=*distRegTerm ;
-		//}
+		*phi=*phi + timestep*(mu**distRegTerm +lambda**edgeTerm + alfa**areaTerm);
+		phi_0=*phi;
+
 	}	
-	//phi_0=*phi;
+
 	return phi_0; 
 }
 void LevelSet::testout(Raw2D *ret){
