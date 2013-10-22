@@ -560,7 +560,7 @@ ImageF* del2(ImageF *phi)
 
 	int m=phi->getXsize();
 	int n=phi->getYsize();
-	Raw2D *ret2=new Raw2D(m,n);
+	Raw2D *ret2=new Raw2D(phi);
 
 	Raw2D *ret=new Raw2D(phi);
 
@@ -569,8 +569,8 @@ ImageF* del2(ImageF *phi)
 		for(j=0;j<n;j++)
 		{
 			if(i+1<m&&j+1<n&&i-1>=0&&j-1>=0)
-			ret2->put(i,j,ret->get(i+1,j)+ret->get(i-1,j)+ret->get(i,j+1)+ret->get(i,j-1)-4*ret->get(i,j));
-			else ret2->put(i,j,0);
+				ret2->put(i,j,ret->get(i+1,j)+ret->get(i-1,j)+ret->get(i,j+1)+ret->get(i,j-1)-4*ret->get(i,j));
+			//else ret2->put(i,j,0);
 
 		}
 
@@ -680,8 +680,8 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 	ImageF *phi=new ImageF(&phi_0);
 	int m=g.getXsize();
 	int n=g.getYsize();
-	ImageF *vx=gradientxg(&g);
-	ImageF *vy=gradientyg(&g);
+	ImageF *vx=gradientx(&g);
+	ImageF *vy=gradienty(&g);
 	for(int i=0;i<iter;i++)
 	{
 		NeumannBoundCond(phi);
@@ -730,9 +730,9 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 		ImageF  *edgeTerm=new ImageF(m,n);
 		//*edgeTerm=255**diracPhi*(*vx**Nx+*vy**Ny) +255**diracPhi*g*(*curvature);
 		*edgeTerm=*diracPhi*(*vx**Nx+*vy**Ny) +*diracPhi*g*(*curvature);
-		//phi_0=*phi;
-		*phi=*phi + timestep*(mu**distRegTerm +lambda**edgeTerm + alfa**areaTerm);
 		phi_0=*phi;
+		*phi=*phi + timestep*(mu**distRegTerm +lambda**edgeTerm + alfa**areaTerm);
+		phi_0=4**del2(phi);
 
 	}	
 
