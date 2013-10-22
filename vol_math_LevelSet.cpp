@@ -480,6 +480,8 @@ ImageF& div(ImageF &x, ImageF &y)
 	ImageF *gradx = gradientx(&x),
 		   *grady = gradienty(&y);
 	*ret = (*gradx + *grady);
+	//showImg(*gradx);
+	//showImg(*grady);
 	return *ret;
 }
 
@@ -709,7 +711,7 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 		//*Ny=(phi_y/(*s+smallNumber));
 		ImageF * curvature=new ImageF(m,n);
 		*curvature=div(*Nx,*Ny);
-		//showImg();
+		showImg(*Nx+*Ny);
 		ImageF *distRegTerm=new ImageF(m,n);
 		//const string p1("single-well");
 		//const char *p1=potentialFunction;
@@ -740,7 +742,7 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 		//*edgeTerm=255**diracPhi*(*vx**Nx+*vy**Ny) +255**diracPhi*g*(*curvature);
 		*edgeTerm = (*diracPhi)*((*vx)*(*Nx)+*vy*(*Ny)) +(*diracPhi)*g*(*curvature);
 		phi_0=*phi;
-		showImg(*curvature);
+		//showImg(*curvature);
 		*phi=*phi + timestep*(mu*(*distRegTerm) +lambda*(*edgeTerm) + alfa*(*areaTerm));
 		//phi_0=*del2(phi);
 

@@ -5,7 +5,7 @@
 using namespace std;
 
 typedef unsigned char PIXTYPE;
-
+class Raw3D;
 class Raw2D
 {
 private:   			//-----------------DATA----------------- 
@@ -21,8 +21,8 @@ private:   			//-----------------DATA-----------------
 	}
 
 public:				//---------------init fcns-------------
-	const PIXTYPE MAXPIXEL = 255;
-	const PIXTYPE MINPIXEL = 0;
+	const static PIXTYPE MAXPIXEL = 255;
+	const static PIXTYPE MINPIXEL = 0;
 
 	Raw2D(int,int,PIXTYPE *);
 	Raw2D(int,int);
@@ -80,6 +80,7 @@ public:				//---------------init fcns-------------
 		else cout<<"out of size putxy"<<endl;
 		
 	}
+	bool Raw2D::wipecopy(Raw2D* src);
 
 	//---------------Trilateral Filter fcns-------------
 

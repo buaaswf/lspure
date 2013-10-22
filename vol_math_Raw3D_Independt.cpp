@@ -587,6 +587,36 @@ void Raw2D::sizer(Raw2D* src)
 	Sets the size and allocates memory. Discards any existing contents if
 	the 3D object is not already 'empty'
 **/
+
+
+
+ /**
+	Copy all the pixels from 'src'.  If size of 'src' is different from
+	us, 'wipe' out our current pixels, and change our size to match 'src'.
+	If a 'wipe' was necessary, return 'FALSE', else return 'TRUE'.
+-**/
+
+bool Raw2D::wipecopy(Raw2D* src) {
+	bool out=TRUE;
+	int i,imax;	
+   
+	if(getYsize() != src->getYsize() || getXsize()!=src->getXsize()) { // resize to fit 'src'.
+		sizer(src);
+		out=FALSE;
+    	}
+    	imax = getXsize()*getYsize();
+    	for(i=0; i<imax; i++) {
+		putXY(i,src->getXY(i));
+    	}
+		
+		return(out);
+}
+
+/**
+ 	Sets the size and allocates memory. Discards any existing contents if
+ 	the 3D object is not already 'empty'
+ **/
+
 void Raw3D::sizer(int ixsize, int iysize, int izsize) {
 	int i;
 		if(z!=NULL)

@@ -14,10 +14,10 @@ public:
 	static Raw2D* guassFilter(Raw2D* src, int halfsize)
 	{
 		int i=0,j=0,m=0,n=0,width=0,length=0,index=0;
-		float sum = 0f;
+		float sum = 0;
 		int delta=1;
-		width=getXsize();
-		length=getYsize();
+		width=src->getXsize();
+		length=src->getYsize();
 
 		Raw2D *guass = new Raw2D(width, length);	///< The result of guass filter. 
 
