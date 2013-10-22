@@ -6,9 +6,6 @@
 #include "cv.h"
 #include "highgui.h"
 
-#define BOOL int
-#define TRUE 1
-#define FALSE 0
 using namespace std;
 Raw3D_Independt::Raw3D_Independt(void)
 {
@@ -20,12 +17,14 @@ Raw3D_Independt::Raw3D_Independt(void)
 Raw3D_Independt::~Raw3D_Independt(void)
 {
 }
+
  static float lgtt=log10(2.0f);
+
  Raw2D::Raw2D()
  {
 	 xsize=0;
 	 ysize=0;
-	 y=NULL;
+	 data=NULL;
 }
 #define M_EXP 2.7182818284590452353602874713527
  Raw2D::Raw2D(int xsize,int ysize,PIXTYPE *y)
@@ -33,37 +32,37 @@ Raw3D_Independt::~Raw3D_Independt(void)
 	//float i=0.0f;
 	this->xsize=xsize;
 	this->ysize=ysize;
-	this->y=y;
+	this->data=y;
 }
 
  Raw2D::Raw2D( int xsize,int ysize )
  {
 	 this->xsize=xsize;
 	 this->ysize=ysize;
-	 this->y=new PIXTYPE[xsize*ysize];
+	 this->data=new PIXTYPE[xsize*ysize];
  }
 
  Raw2D::Raw2D( Raw2D *r)
  {
 	 this->xsize=r->xsize;
 	 this->ysize=r->ysize;
-	 this->y=new PIXTYPE[xsize*ysize];
-	 memcpy(this->y,r->y,xsize*ysize);
+	 this->data=new PIXTYPE[xsize*ysize];
+	 memcpy(this->data,r->data,xsize*ysize);
  }
 
  Raw2D::Raw2D(Raw2D& r)
  {
 	 this->xsize=r.xsize;
 	 this->ysize=r.ysize;
-	 this->y=new PIXTYPE[xsize*ysize];
-	 memcpy(this->y,r.y,xsize*ysize);
+	 this->data=new PIXTYPE[xsize*ysize];
+	 memcpy(this->data,r.data,xsize*ysize);
  }
 
  Raw2D::~Raw2D(void)
  {
-	 if(this->y!=NULL)
-		 delete [] this->y;
-	 y=NULL;
+	 if(this->data!=NULL)
+		 delete [] this->data;
+	 data=NULL;
 	//cout<<"RAW2D is deconstruct"<<endl;
  }
  /* Raw3D::Raw3D(void)
@@ -239,7 +238,7 @@ changes.
 	//Copying the result to the output image
 	wipecopy(&destImg);
 	FILE *p=fopen("F:\\HALFSIZE10p1BETA0.15tmptest520.raw","ab+");
-	fwrite(destImg.y,sizeof(PIXTYPE),281*481,p);
+	fwrite(destImg.data,sizeof(PIXTYPE),281*481,p);
 	fclose(p);
 
 	printf("write is ok");
@@ -561,12 +560,13 @@ void Raw2D::DetailBilateralFilter(Raw2D* srcImg, Raw2D* pSmoothX, Raw2D* pSmooth
 	object and reserves a rectangular field of ixsize by iysize pixels.
 **/
 void Raw2D::sizer(int ixsize, int iysize) {
-	if(y!=NULL)
-		delete [] this->y;
-		y=NULL;
-		this->y = new PIXTYPE[ixsize*iysize];	// & allocate memory.
-    	xsize = ixsize;				// set new image size,
-    	ysize = iysize;
+	if(data!=NULL)
+		delete [] this->data;
+
+	data=NULL;
+	this->data = new PIXTYPE[ixsize*iysize];	// & allocate memory.
+    xsize = ixsize;				// set new image size,
+    ysize = iysize;
 }
 
 /**
@@ -576,34 +576,9 @@ void Raw2D::sizer(int ixsize, int iysize) {
 void Raw2D::sizer(Raw2D* src) 
 {
     	int ix, iy;
-	
     	ix = src->getXsize();
     	iy = src->getYsize();
     	sizer(ix,iy);
-}
-
-
-
-/**
-	Copy all the pixels from 'src'.  If size of 'src' is different from
-	us, 'wipe' out our current pixels, and change our size to match 'src'.
-	If a 'wipe' was necessary, return 'FALSE', else return 'TRUE'.
-**/
-
-BOOL Raw2D::wipecopy(Raw2D* src) {
-	BOOL out=TRUE;
-	int i,imax;	
-    
-	if(getYsize() != src->getYsize() || getXsize()!=src->getXsize()) { // resize to fit 'src'.
-		sizer(src);
-		out=FALSE;
-    	}
-    	imax = getXsize()*getYsize();
-    	for(i=0; i<imax; i++) {
-		putXY(i,src->getXY(i));
-    	}
-		
-		return(out);
 }
 
 
@@ -647,14 +622,14 @@ int k,kmax;
 	}
 }
 
-void Raw2D::guassConv(Raw2D *raw2d,int halfsize)
+void Raw2D::guassConv(int halfsize)
 {
 	int i=0,N=5,j=0,m=0,n=0,width=0,length=0,index=0,sum=0;
 	int delta=1;
-	//PIXTYPE * s=raw2d->gety();
 	width=getXsize();
 	length=getYsize();
-	PIXTYPE *guass=new PIXTYPE[width*length];
+	//PIXTYPE *guass=new PIXTYPE[width*length];
+	Raw2D *guass = new Raw2D(width, length);
 
 	for (i=0;i<width;i++)
 	{
@@ -662,43 +637,33 @@ void Raw2D::guassConv(Raw2D *raw2d,int halfsize)
 		{
 			sum=0;
 			float weight=0,total=0;
-			for( m=i-halfsize; m<i+halfsize; m++)
+			for( m=i-halfsize; m<=i+halfsize; m++)
 			{
-				for(n=j-halfsize; n<j+halfsize; n++)
+				for(n=j-halfsize; n<=j+halfsize; n++)
 				{
-					if( m >= 0 && m <width && n>=0 && n <length) 
+					if(m >= 0 && m < width && n>=0 && n < length) 
 					{
-						//weight=exp((float)-((m-i)*(m-i)+(n-i)*(n-i))/(2*delta*delta));
-						weight=1/((m-i)*(m-i)+(n-i)*(n-i)+1);
-					//	sum += weight*s[m*length+n];
-						sum += weight*get(m,n);
+						//weight=1.0f/((m-i)*(m-i)+(n-i)*(n-i)+1);
+						weight=1.0f/exp((float)((m-i)*(m-i)+(n-i)*(n-i)));
+						sum += weight*(this->get(m, n));
 						total+=weight;
 					}
-					else 
-						//sum+=s[i*width+j];
-						sum+=0;
 				}
 			}
 
 			if(total!=0)
 			{	
 				sum /=total;//total is 1,regulation
-				//else
-				//	sum+=s[i*length+j];
-				//if(sum>255)
-				//	sum=255;
-				//s[i*width+j]=sum;
-				guass[i*length+j]=sum;
-				//cout<<sum-s[i*length+j]<<endl;
-				//cout<<sum-raw2d->get(i,j)<<endl;			
+				guass->put(i,j,sum);		
 			}
 			else 
+			{
 				//guass[i*length+j]=s[i*length+j];
-				raw2d->put(i,j,guass[i*length+j]);
-
+				//raw2d->put(i,j,guass[i*length+j]);
+				cout << "total==0" << endl;
+			}
 		}
 	}
-	//memcpy(s,guass,width*length);
-	raw2d->puty(guass);
-	delete[] guass;
+	*this = guass;
+	delete guass;
 }

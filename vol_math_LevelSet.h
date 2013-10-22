@@ -1,6 +1,9 @@
 #pragma once
+
 #include"ImageF.h"
 #include "vol_math_Raw3D_Independt.h"
+#include "test.h"
+
 #include<string>
 using  std::string;
 class LevelSet
