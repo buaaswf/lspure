@@ -10,9 +10,9 @@
 static void showImg(Raw2D& img)
 {
 	IplImage *source = cvCreateImage(cvSize(img.getXsize(), img.getYsize()), 8, 1);
-	for (int i=0;i<source->height;i++)
+	for (int i=0;i<source->width;i++)
 	{
-		for (int j=0;j<source->width;j++)
+		for (int j=0;j<source->height;j++)
 		{
 			CV_IMAGE_ELEM(source,uchar,i,j) = img.get(i,j);
 		}

@@ -99,6 +99,35 @@ ImageF* gradientxg(ImageF *g)
 	}
 	return ret;
 }
+ImageF* gradientxg0(ImageF *g)
+{
+	int n=g->getXsize();
+	int m=g->getYsize();
+	Raw2D* ret=new Raw2D(g);
+	int i,j;
+
+	for(int i=0;i<n;i++)
+	{
+		for(j=0;j<m;j++)
+		{
+
+			if (i+1<n&&j+1<m)
+			{
+
+				if (g->get(i+1,j)-g->get(i,j)>0)
+				{
+					ret->put(i,j,(g->get(i+1,j)-g->get(i,j)));
+				}
+				else if (g->get(i+1,j)-g->get(i,j)<0)
+				{
+					ret->put(i+1,j,(g->get(i,j)-g->get(i+1,j)));
+				}
+				else ret->put(i,j,0);
+			}
+		}
+	}
+	return ret;
+}
 //ImageF* gradientxg(ImageF *g)
 //{
 //	int n=g->getXsize();
@@ -189,7 +218,36 @@ ImageF* gradientyg(ImageF* g )
 	return ret;
 
 }
+ImageF* gradientyg0(ImageF* g )
+{
+	int n=g->getXsize();
+	int m=g->getYsize();
+	ImageF* ret=new ImageF(g);
+	int i,j;
+	//PIXTYPE *gg=(*g).gety();
+	//PIXTYPE *p=(*ret).gety();
+	for(i=0;i<n;i++)
+	{
+		for(j=0;j<m;j++)
+		{
+			if (i+1<n&&j+1<m)
+			{
+				if (g->get(i,j+1)-g->get(i,j)>0)
+				{
+					ret->put(i,j,(g->get(i,j+1)-g->get(i,j)));
+				}
+				else if (g->get(i,j+1)-g->get(i,j)<0)
+				{
+					ret->put(i,j+1,(-g->get(i,j+1)+g->get(i,j)));
+				}
+				else ret->put(i,j,0);
+			}
 
+		}
+	}
+	return ret;
+
+}
 //ImageF* gradienty(ImageF *g)
 //{
 //	int n=g->getXsize();
@@ -477,8 +535,8 @@ ImageF&  operator+( ImageF  &x,float s)
 ImageF& div(ImageF &x, ImageF &y)
 {
 	ImageF *ret=new ImageF(x.getXsize(),x.getYsize());
-	ImageF *gradx = gradientx(&x),
-		   *grady = gradienty(&y);
+	ImageF *gradx = gradientxg0(&x),
+		   *grady = gradientyg0(&y);
 	*ret = (*gradx + *grady);
 	//showImg(*gradx);
 	//showImg(*grady);
@@ -694,27 +752,21 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 	for(int i=0;i<iter;i++)
 	{
 		//NeumannBoundCond(phi);
-		ImageF &phi_x=*gradientx(phi);
-		ImageF &phi_y=*gradienty(phi);
+		ImageF &phi_x=*gradientxg0(phi);
+		ImageF &phi_y=*gradientyg0(phi);
 		Raw2D *s=new Raw2D(m,n);
-
 		*s=ImageFSqrt(phi_x,phi_y);
+		showImg(*s);
 		float smallNumber=1e-10;
 		ImageF *Nx=new ImageF(phi_x);
 		ImageF *Ny=new ImageF(phi_y);
-
 		//*Nx=pow(255,phi_x/(*s+smallNumber));
 		//*Ny=pow(255,phi_y/(*s+smallNumber));
-		*Nx=(phi_x/(*s+smallNumber));
-		*Ny=(phi_y/(*s+smallNumber));
-		//*Nx=(phi_x/(*s+smallNumber));
-		//*Ny=(phi_y/(*s+smallNumber));
+		*Nx=255*(phi_x/(*s+smallNumber));
+		*Ny=255*(phi_y/(*s+smallNumber));
 		ImageF * curvature=new ImageF(m,n);
 		*curvature=div(*Nx,*Ny);
-		showImg(*Nx+*Ny);
 		ImageF *distRegTerm=new ImageF(m,n);
-		//const string p1("single-well");
-		//const char *p1=potentialFunction;
 		char *p1="single-well";
 		if (strcmp(potentialFunction,p1)+1)
 		{/*
@@ -740,14 +792,15 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 		Raw2D* areaTerm=new Raw2D((g*(*diracPhi))); 
 		ImageF  *edgeTerm=new ImageF(m,n);
 		//*edgeTerm=255**diracPhi*(*vx**Nx+*vy**Ny) +255**diracPhi*g*(*curvature);
-		*edgeTerm = (*diracPhi)*((*vx)*(*Nx)+*vy*(*Ny)) +(*diracPhi)*g*(*curvature);
-		phi_0=*phi;
+		*edgeTerm = (*diracPhi) * ((*vx) * (*Nx))+((*vy)*(*Ny)) + (*diracPhi)*(g*(*curvature));
+		//phi_0=*phi;
 		//showImg(*curvature);
 		*phi=*phi + timestep*(mu*(*distRegTerm) +lambda*(*edgeTerm) + alfa*(*areaTerm));
 		//phi_0=*del2(phi);
+		phi_0=*phi;
 
 	}	
-
+	//showImg(phi_0);
 	return phi_0; 
 }
 void LevelSet::testout(Raw2D *ret){

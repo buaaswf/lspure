@@ -39,7 +39,7 @@ int main()
 	{
 		for (int j=0;j<y;j++)
 		{
-			if(i>3&&i<8&&j>3&&j<8)
+			if(i>25&&i<35&&j>40&&j<50)
 				initial->putXY(i*y+j,255);
 			else if (i>25&&i<35&&j>40&&j<50)
 			{
@@ -56,13 +56,13 @@ int main()
 	showImg(*initial);
 	
 	//raw2d->guassConv(raw2d,2);
-	Raw2D *data=new Raw2D(raw2d);
+	//Raw2D *data=new Raw2D(raw2d);
 	LevelSet *ls=new LevelSet();
 	ls->initialg(*raw2d);
 	char const *pt="single-well";
 	int iter_outer=1;
 	
-	*data=ls->drlse_edge(*initial,*raw2d,5.0,0.2,-3,150,1,iter_outer,pt);
+	ls->drlse_edge(*initial,*raw2d,5.0,0.2,-3,150,1,iter_outer,pt);
 
 	 system("pause");
 }
