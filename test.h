@@ -29,10 +29,10 @@ static void showImg(Raw2D& img)
 }
 static void IShowImg(Raw2D& img)
 {
-	CImg <int> sourceimage(img.getXsize(),img.getYsize(),1,1,0);
+	CImg <double> sourceimage(img.getYsize(),img.getXsize(),1,1,0);
 	cimg_for_insideXY(sourceimage,x,y,0)
 	{
-		sourceimage(x,y,0)=img.get(x,y);
+		sourceimage(x,y,0)=img.get(y,x);
 	}
 	sourceimage.display("hello");
 }

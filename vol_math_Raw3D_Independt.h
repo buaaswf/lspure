@@ -4,7 +4,7 @@
 #include <iostream>
 using namespace std;
 
-typedef unsigned char  PIXTYPE;
+typedef double  PIXTYPE;
 class Raw3D;
 class Raw2D
 {

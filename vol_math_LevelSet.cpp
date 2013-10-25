@@ -29,8 +29,9 @@ ImageF* Dirac(ImageF *x,float sigma)
 {
 	//showImg(*x);
 	ImageF *ret=new ImageF(x);
-	
-	Raw2D *f=new Raw2D((255*255*(1.0/2.0)/sigma)*(cos(3.14*(*ret/sigma))+1));
+
+	//Raw2D *f=new Raw2D((255*255*(1.0/2.0)/sigma)*(cos(3.14*(*ret/sigma))+1));
+	Raw2D *f=new Raw2D(((1.0/2.0)/sigma)*(cos(3.14*(*ret/sigma))+1));
 	//Raw2D *f=new Raw2D(((-1)**ret**ret)/4.0+255*2/3);
 	ImageF *b=new Raw2D(regFunction(*ret,-sigma,sigma));
 	*f=*f**b;
@@ -685,11 +686,14 @@ ImageF& regFunction(ImageF &s,int m,int n)
 			val=ss->get(i,j);
 			if(val>=m && val<=n)
 			{
-				ss->put(i,j,255);
+				//ss->put(i,j,255);//unsigned char version
+				ss->put(i,j,1);
 			}
 			else if(ss->get(i,j)==m||ss->get(i,j)==n)
-				ss->put(i,j,val);
-			else ss->put(i,j,val);
+				/*	ss->put(i,j,val);
+				else ss->put(i,j,val);*/
+				ss->put(i,j,0);
+			else ss->put(i,j,0);
 		}
 
 	}
@@ -747,9 +751,10 @@ ImageF& LevelSet::initialg(ImageF &g)
 	ImageF *gy=gradientyg(ret);
 	//g=*ret;
 	g=*gx**gx+*gy**gy;
-	//g=(255/(g+1));//or  
-	//g=-255/(g+1)+255;
-	g=-1*g+255;
+	//g=(255/(g+1));//or  unsigned char version
+	//g=-255/(g+1)+255;unsigned char version
+	//g=-1*g+255; unsigned char version
+	g=1.0/(g+1.0);
 	delete ret;
 	return g;
 }
@@ -773,7 +778,6 @@ ImageF& LevelSet::initialg(ImageF &g)
 /// \brief
 ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float alfa,float epsilon,int timestep, int iter,const char * potentialFunction)
 {
-
 	ImageF *phi=new ImageF(phi_0);
 	int m=g.getXsize();
 	int n=g.getYsize();
@@ -783,7 +787,9 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 
 	for(int i=0;i<iter;i++)
 	{
-		NeumannBoundCond(phi);
+	
+		//NeumannBoundCond(phi);
+		IShowImg(*phi);
 		ImageF &phi_x=*gradientx(phi);
 		ImageF &phi_y=*gradienty(phi);
 		Raw2D *s=new Raw2D(m,n);
@@ -818,7 +824,7 @@ ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float
 		Raw2D* areaTerm=new Raw2D((g*(*diracPhi))); 
 		ImageF  *edgeTerm=new ImageF(m,n);
 		*edgeTerm = (*diracPhi) * ((*vx) * (*Nx))+((*vy) * (*Ny)) + (*diracPhi) * ( g * (*curvature));
-		*phi=*phi + timestep*(mu*(*distRegTerm) +lambda*(*edgeTerm) + alfa*(*areaTerm));
+		//*phi=*phi + timestep*(mu*(*distRegTerm) +lambda*(*edgeTerm) + alfa*(*areaTerm));
 		//IShowImg(*distRegTerm);
 		//IShowImg(*edgeTerm);
 		//IShowImg(*areaTerm);
