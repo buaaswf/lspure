@@ -14,6 +14,7 @@ public:
 	//LevelSet(void);
 	~LevelSet(void);
 	ImageF& drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float alfa,float epsilon,int timestep, int iter,const char * sada);
+	ImageF& uchar2double(ImageF &img);
 	void testout(Raw2D *ret);
 };
 

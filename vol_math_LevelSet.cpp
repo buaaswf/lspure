@@ -27,13 +27,16 @@ ImageF& operator / (ImageF &x,float);
 ImageF& sin(ImageF &s);
 ImageF* Dirac(ImageF *x,float sigma)
 {
+	//showImg(*x);
 	ImageF *ret=new ImageF(x);
-	Raw2D *f=new Raw2D(3*((1.0/2.0)/sigma)*(cos(3.14*(*ret/sigma))+1));
-	//Raw2D *f=new Raw2D(x);
-	ImageF *b=new Raw2D(regFunction(*ret,225,255));
+	
+	Raw2D *f=new Raw2D((255*255*(1.0/2.0)/sigma)*(cos(3.14*(*ret/sigma))+1));
+	//Raw2D *f=new Raw2D(((-1)**ret**ret)/4.0+255*2/3);
+	ImageF *b=new Raw2D(regFunction(*ret,-sigma,sigma));
 	*f=*f**b;
-
 	ret=f;
+	//showImg(*f);
+	//IShowImg(*ret);
 	return ret ;
 
 }
@@ -57,7 +60,7 @@ ImageF* gradientx(ImageF *g)
 				}
 				else if (g->get(i+1,j)-g->get(i,j)<0)
 				{
-					ret->put(i+1,j,(-g->get(i+1,j)+g->get(i,j)));
+					ret->put(i,j,(g->get(i+1,j)-g->get(i,j)));
 				}
 				else 
 				{
@@ -66,6 +69,66 @@ ImageF* gradientx(ImageF *g)
 			}
 			else 
 				ret->put(i,j,0);
+		}
+	}
+	return ret;
+}
+ImageF* gradientxgorignal(ImageF *g)
+{
+	int n=g->getXsize();
+	int m=g->getYsize();
+	Raw2D* ret=new Raw2D(g);
+	int i,j;
+	int temp1,temp2;
+
+	for(int i=0;i<n;i++)
+	{
+		for(j=0;j<m;j++)
+		{
+
+			if(j>0)
+				temp1=j-1;
+			else 
+				temp1=0;
+			/*if(j<m-1)
+				temp2=j+1;
+			else 
+				temp2=m-1;*/
+			ret->put(i,j,(g->get(i,temp1+1)-g->get(i,temp1)));
+
+
+
+
+		}
+	}
+	return ret;
+}
+ImageF* gradientxgc(ImageF *g)
+{
+	int n=g->getXsize();
+	int m=g->getYsize();
+	Raw2D* ret=new Raw2D(g);
+	int i,j;
+	int temp1,temp2;
+
+	for(int i=0;i<n;i++)
+	{
+		for(j=0;j<m;j++)
+		{
+
+			if(j>0)
+				temp1=j-1;
+			else 
+				temp1=0;
+			if(j<m-1)
+				temp2=j+1;
+			else 
+				temp2=m-1;
+			ret->put(i,j,(g->get(i,temp2)-g->get(i,temp1))/2.0);
+
+
+
+
 		}
 	}
 	return ret;
@@ -91,73 +154,14 @@ ImageF* gradientxg(ImageF *g)
 				}
 				else if (g->get(i+1,j)-g->get(i,j)<0)
 				{
-					ret->put(i+1,j,(-g->get(i+1,j)+g->get(i,j)));
+					ret->put(i+1,j,(-1*g->get(i+1,j)+g->get(i,j)));
 				}
 				//else ret->put(i,j,0);
 			}
 		}
 	}
-	return ret;
+		return ret;
 }
-ImageF* gradientxg0(ImageF *g)
-{
-	int n=g->getXsize();
-	int m=g->getYsize();
-	Raw2D* ret=new Raw2D(g);
-	int i,j;
-
-	for(int i=0;i<n;i++)
-	{
-		for(j=0;j<m;j++)
-		{
-
-			if (i+1<n&&j+1<m)
-			{
-
-				if (g->get(i+1,j)-g->get(i,j)>0)
-				{
-					ret->put(i,j,(g->get(i+1,j)-g->get(i,j)));
-				}
-				else if (g->get(i+1,j)-g->get(i,j)<0)
-				{
-					ret->put(i+1,j,(g->get(i,j)-g->get(i+1,j)));
-				}
-				else ret->put(i,j,0);
-			}
-		}
-	}
-	return ret;
-}
-//ImageF* gradientxg(ImageF *g)
-//{
-//	int n=g->getXsize();
-//	int m=g->getYsize();
-//	Raw2D* ret=new Raw2D(g);
-//	int i,j;
-//	int temp1,temp2;
-//
-//	for(int i=0;i<n;i++)
-//	{
-//		for(j=0;j<m;j++)
-//		{
-//
-//			if(j>0)
-//				temp1=j-1;
-//			else 
-//				temp1=0;
-//			if(j<m-1)
-//				temp2=j+1;
-//			else 
-//				temp2=m-1;
-//			ret->put(i,j,(g->get(i,temp2)-g->get(i,temp1))/2.0);
-//
-//		
-//
-//
-//		}
-//	}
-//	return ret;
-//}
 ImageF* gradienty(ImageF* g )
 {
 	int n=g->getXsize();
@@ -178,7 +182,7 @@ ImageF* gradienty(ImageF* g )
 				}
 				else if (g->get(i,j+1)-g->get(i,j)<0)
 				{
-					ret->put(i,j+1,(-g->get(i,j+1)+g->get(i,j)));
+					ret->put(i,j+1,(g->get(i,j)-g->get(i,j+1)));
 				}
 				else ret->put(i,j,0);
 			}
@@ -194,8 +198,6 @@ ImageF* gradientyg(ImageF* g )
 	int m=g->getYsize();
 	ImageF* ret=new ImageF(g);
 	int i,j;
-	//PIXTYPE *gg=(*g).gety();
-	//PIXTYPE *p=(*ret).gety();
 	for(i=0;i<n;i++)
 	{
 		for(j=0;j<m;j++)
@@ -208,7 +210,7 @@ ImageF* gradientyg(ImageF* g )
 				}
 				else if (g->get(i,j+1)-g->get(i,j)<0)
 				{
-					ret->put(i,j+1,(-g->get(i,j+1)+g->get(i,j)));
+					ret->put(i,j+1,(-1*g->get(i,j+1)+g->get(i,j)));
 				}
 				//else ret->put(i,j,0);
 			}
@@ -218,84 +220,72 @@ ImageF* gradientyg(ImageF* g )
 	return ret;
 
 }
-ImageF* gradientyg0(ImageF* g )
+
+ImageF* gradientygc(ImageF *g)
 {
 	int n=g->getXsize();
 	int m=g->getYsize();
-	ImageF* ret=new ImageF(g);
+	Raw2D* ret=new Raw2D(g);
 	int i,j;
-	//PIXTYPE *gg=(*g).gety();
-	//PIXTYPE *p=(*ret).gety();
-	for(i=0;i<n;i++)
+	int temp1,temp2;
+
+	for(int i=0;i<n;i++)
 	{
 		for(j=0;j<m;j++)
 		{
-			if (i+1<n&&j+1<m)
-			{
-				if (g->get(i,j+1)-g->get(i,j)>0)
-				{
-					ret->put(i,j,(g->get(i,j+1)-g->get(i,j)));
-				}
-				else if (g->get(i,j+1)-g->get(i,j)<0)
-				{
-					ret->put(i,j+1,(-g->get(i,j+1)+g->get(i,j)));
-				}
-				else ret->put(i,j,0);
-			}
+
+			if(i>0)
+				temp1=i-1;
+			else 
+				temp1=0;
+			if(i<n-1)
+				temp2=i+1;
+			else 
+				temp2=n-1;
+			ret->put(i,j,(g->get(temp2,j)-g->get(temp1,j))/2.0);
+
+
+
 
 		}
 	}
 	return ret;
-
 }
-//ImageF* gradienty(ImageF *g)
-//{
-//	int n=g->getXsize();
-//	int m=g->getYsize();
-//	Raw2D* ret=new Raw2D(g);
-//	int i,j;
-//	int temp1,temp2;
-//
-//	for(int i=0;i<n;i++)
-//	{
-//		for(j=0;j<m;j++)
-//		{
-//
-//			if(i>0)
-//				temp1=i-1;
-//			else 
-//				temp1=0;
-//			if(i<n-1)
-//				temp2=i+1;
-//			else 
-//				temp2=n-1;
-//			ret->put(i,j,(g->get(temp2,j)-g->get(temp1,j))/2.0);
-//
-//
-//
-//
-//		}
-//	}
-//	return ret;
-//}
-//ImageF& operator &(ImageF &x,ImageF &y)
-//{
-//	int i,j,n,m;
-//	ImageF *ret=new ImageF(x);
-//	n=x.getXsize();
-//	m=x.getYsize();
-//	for(i=0;i<m;i++)
-//	{
-//		for(j=0;j<n;j++)
-//		{
-//			//*(x.gety()+i*m+j)=*(x.gety()+i*m+j)&(*(y.gety()+i*m+j));
-//			ret->put(i,j,x.get(i,j)&y.get(i,j));
-//		}
-//
-//	}
-//	return *ret;
-//
-//}
+ImageF* gradientygcorignal(ImageF *g)
+{
+	int n=g->getXsize();
+	int m=g->getYsize();
+	Raw2D* ret=new Raw2D(g);
+	int i,j;
+	int temp1,temp2;
+
+	for(int i=0;i<n;i++)
+	{
+		for(j=0;j<m;j++)
+		{
+
+			if(i>0)
+				temp1=i-1;
+			else 
+				temp1=0;
+			//if(i<n-1)
+			//	temp2=i+1;
+			//else 
+			//	temp2=n-1;
+			int val=(g->get(temp1+1,j)-g->get(temp1,j));
+			if (val<0)
+			{
+				cout<<val<<endl;
+			}
+			ret->put(i,j,val);
+
+
+
+
+		}
+	}
+	return ret;
+}
 ImageF& cos(ImageF &xdata)
 {
 	ImageF *x=new ImageF(xdata);
@@ -309,8 +299,7 @@ ImageF& cos(ImageF &xdata)
 		}
 
 	}
-	xdata=*x;
-	return xdata;
+	return *x;
 }
 
 ImageF* NeumannBoundCond(ImageF *img)
@@ -400,7 +389,7 @@ ImageF& operator *(float p1,ImageF &x)
 	{
 		for(j=0;j<n;j++)
 		{
-			//*(p+i*n+j)=*(p+i*n+j)*p1;
+
 			ret->put(i,j,x.get(i,j)*p1);
 		}
 
@@ -410,8 +399,6 @@ ImageF& operator *(float p1,ImageF &x)
 }
 ImageF& operator * (ImageF &x,ImageF &y)
 {
-	//PIXTYPE *p=x.gety();
-	//PIXTYPE *q=y.gety();
 	ImageF *ret=new ImageF(x);
 	int m=x.getXsize();
 	int n=x.getYsize();
@@ -428,9 +415,6 @@ ImageF& operator * (ImageF &x,ImageF &y)
 }
 ImageF* operator * (ImageF &x,ImageF *y)
 {
-
-	//PIXTYPE *p=x.gety();
-	//PIXTYPE *q=y->gety();
 	ImageF *ret=new ImageF(x);
 	int n=x.getXsize();
 	int m=x.getYsize();
@@ -438,7 +422,7 @@ ImageF* operator * (ImageF &x,ImageF *y)
 	{
 		for(int j=0;j<m;j++)
 		{
-			//q[i*m+j]*=p[i*m+j];
+			
 			ret->put(i,j,x.get(i,j)*y->get(i,j));
 		}
 
@@ -484,10 +468,8 @@ ImageF& operator/(ImageF &x,float t)
 	{
 		for(j=0;j<n;j++)
 		{
-			//*(p+i*n+j)=*(p+i*n+j)/(t+0.001);
 			temp=x.get(i,j)/t;
-			if(temp!=0)
-				ret->put(i,j,temp);
+			ret->put(i,j,temp);
 		}
 
 	}
@@ -497,15 +479,14 @@ ImageF& operator/(ImageF &x,float t)
 ImageF& operator/(float t,ImageF &x)
 
 {
-	//p=x.gety();
+	ImageF *ret=new ImageF(x);
 	int m=x.getXsize();
 	int n=x.getYsize();
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
-			//*(p+i*n+j)=*(p+i*n+j)/(t+0.001);
-			x.put(i,j,t/(x.get(i,j)+0.001));
+			ret->put(i,j,t/(x.get(i,j)+0.001));
 		}
 
 	}
@@ -518,12 +499,20 @@ ImageF&  operator+( ImageF  &x,float s)
 	ImageF *ret=new ImageF(x);
 	int m=x.getXsize();
 	int n=x.getYsize();
+	double val=0;
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
-			//*(p+i*n+j)=*(p+i*n+j)+s;
-			ret->put(i,j,x.get(i,j)+s);
+			val=x.get(i,j)+s;
+			if (0<val&&val<255)
+			{
+				ret->put(i,j,val);
+			}
+			else
+			{
+				ret->put(i,j,val);
+			}
 		}
 
 	}
@@ -535,11 +524,10 @@ ImageF&  operator+( ImageF  &x,float s)
 ImageF& div(ImageF &x, ImageF &y)
 {
 	ImageF *ret=new ImageF(x.getXsize(),x.getYsize());
-	ImageF *gradx = gradientxg0(&x),
-		   *grady = gradientyg0(&y);
+	ImageF *gradx = gradientxg(&x),
+		   *grady = gradientyg(&y);
 	*ret = (*gradx + *grady);
-	//showImg(*gradx);
-	//showImg(*grady);
+
 	return *ret;
 }
 
@@ -548,11 +536,21 @@ ImageF& operator+(ImageF &x,ImageF &y)
 	int m=x.getXsize();
 	int n=x.getYsize();
 	ImageF *ret=new ImageF(m, n);
+	double  val=0;
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
-			ret->put(i, j, x.get(i,j)+y.get(i,j));
+			val=x.get(i,j)+y.get(i,j);
+			if (val<256)
+			{
+				ret->put(i, j, val);
+			}
+			else 
+			{
+				ret->put(i,j,val);
+			}
+			
 		}
 	}
 	return *ret;
@@ -560,35 +558,69 @@ ImageF& operator+(ImageF &x,ImageF &y)
 
 ImageF& operator -(ImageF &x,ImageF &y)
 {
-	//p=x.gety();
-	//q=y.gety();
 	ImageF *ret=new ImageF(x);
 	int m=x.getXsize();
 	int n=x.getYsize();
+	int val=0;
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
-			//*(p+i*n+j)=*(p+i*n+j)-(*(q+i*n+j));
-			ret->put(i,j,x.get(i,j)-y.get(i,j));
+			val=x.get(i,j)-y.get(i,j);
+			if (val>0)
+			{
+				ret->put(i,j,x.get(i,j)-y.get(i,j));
+			}
+			else 
+			{
+				ret->put(i,j,val);
+			}
+		
 		}
 
 	}
 	return *ret;
 }
-
-ImageF& operator -(ImageF &x,int s)
+ImageF& operator -(ImageF *x,ImageF &y)
 {
-	//p=x.gety();
 	ImageF *ret=new ImageF(x);
-	int m=x.getXsize();
-	int n=x.getYsize();
+	int m=x->getXsize();
+	int n=x->getYsize();
+	int val=0;
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
-			//*(p+i*n+j)=*(p+i*n+j)-s;
+			val=x->get(i,j)-y.get(i,j);
+			if (val>0)
+			{
+				ret->put(i,j,x->get(i,j)-y.get(i,j));
+			}
+			else 
+			{
+				ret->put(i,j,val);
+			}
+
+		}
+
+	}
+	return *ret;
+}
+ImageF& operator -(ImageF &x,int s)
+{
+	ImageF *ret=new ImageF(x);
+	int m=x.getXsize();
+	int n=x.getYsize();
+	int val=0;
+	for (i=0;i<m;i++)
+	{
+		for(j=0;j<n;j++)
+		{
+			val=x.get(i,j)-s;
+			if(val>0)
 			ret->put(i,j,x.get(i,j)-s);
+			else 
+				ret->put(i,j,val);
 		}
 
 	}
@@ -603,8 +635,7 @@ ImageF & operator/(ImageF &x,ImageF &y)
 	{
 		for(j=0;j<n;j++)
 		{
-			//*(p+i*n+j)=*(p+i*n+j)-s;
-			ret->put(i,j,((float)x.get(i,j))/((float)y.get(i,j)));
+			ret->put(i,j,(255*(float)x.get(i,j))/((float)y.get(i,j)));
 		}
 
 	}
@@ -622,13 +653,14 @@ ImageF* del2(ImageF *phi)
 	{
 		for(j=0;j<n;j++)
 		{
+			
 			if (i+1<m && j+1<n && i-1>=0 && j-1>=0)
 			{
 				int value = phi->get(i+1, j) + phi->get(i-1, j) + phi->get(i, j-1) + phi->get(i, j+1) - 4*(phi->get(i,j));
 				if (value >= 0)
 					ret2->put(i, j, (PIXTYPE)value);
 				else
-					ret2->put(i, j, 0);
+					ret2->put(i, j, value);
 			}
 			else 
 			{
@@ -645,19 +677,19 @@ ImageF& regFunction(ImageF &s,int m,int n)
 	//p=s.gety();
 	int l=ss->getXsize();
 	int k=ss->getYsize();
+	PIXTYPE val=0;
 	for (i=0;i<l;i++)
 	{
 		for(j=0;j<k;j++)
 		{
-
-			if(ss->get(i,j)>100)//ss->get(i,j)>=m&&ss->get(i,j)<=n||
-			{//int ll=ss->get(i,j);
-				//cout<<ll<<endl;
+			val=ss->get(i,j);
+			if(val>=m && val<=n)
+			{
 				ss->put(i,j,255);
 			}
 			else if(ss->get(i,j)==m||ss->get(i,j)==n)
-				ss->put(i,j,0);
-			else ss->put(i,j,0);
+				ss->put(i,j,val);
+			else ss->put(i,j,val);
 		}
 
 	}
@@ -672,8 +704,6 @@ ImageF* distReg_p2(ImageF *phi)
 	int n=phi->getYsize();
 	Raw2D *phi_x=new Raw2D(gradientx(phi));
 	ImageF *phi_y=new ImageF(gradienty(phi));
-	//phi_x=;
-	//phi_y=;
 	//ImageF s=ImageFSqrt(((*phi_x)*(*phi_x)) + ((*phi_y)*(*phi_y)));
 	ImageF  s=ImageFSqrt(*phi_x,*phi_y);
 	ImageF a=regFunction(s,0,1);
@@ -682,7 +712,6 @@ ImageF* distReg_p2(ImageF *phi)
 	ImageF dps=regFunction(ps,0,0)*ps+regFunction(ps,0,0)/(regFunction(s,0,0)+regFunction(s,0,0));
 	ImageF f=div(dps**phi_x-*phi_x,dps**phi_y-*phi_y)+4**del2(phi);
 	*ret=f;
-	//ImageF b=(s>1);
 	return ret;
 }
 
@@ -697,8 +726,7 @@ ImageF& sin(ImageF &s)
 	{
 		for(j=0;j<n;j++)
 		{
-			//(*(p+i*n+j))=(float)sin(float(*(p+i*n+j)));
-			ss->put(i,j,(float)sin(float(s.get(i,j))));
+			ss->put(i,j,255*(float)sin(float(s.get(i,j))));
 		}
 
 	}
@@ -720,92 +748,110 @@ ImageF& LevelSet::initialg(ImageF &g)
 	//g=*ret;
 	g=*gx**gx+*gy**gy;
 	//g=(255/(g+1));//or  
-	g=-255/(g+1)+255;
+	//g=-255/(g+1)+255;
+	g=-1*g+255;
 	delete ret;
 	return g;
 }
-
-ImageF & pow(PIXTYPE e,ImageF &x)
-{
-	int m=x.getXsize();
-	int n=x.getYsize();
-	ImageF * ret=new ImageF(x);
-	for (int i=0;i<m;i++)
-	{
-		for (int j=0;j<n;j++)
-		{
-			ret->put(i,j,pow((float)e,x.get(i,j)));
-
-		}
-	}
-	return *ret;
-}
+//
+//ImageF & pow(PIXTYPE e,ImageF &x)
+//{
+//	int m=x.getXsize();
+//	int n=x.getYsize();
+//	ImageF * ret=new ImageF(x);
+//	for (int i=0;i<m;i++)
+//	{
+//		for (int j=0;j<n;j++)
+//		{
+//			ret->put(i,j,pow(e,x.get(i,j)));
+//
+//		}
+//	}
+//	return *ret;
+//}
 
 /// \brief
 ImageF& LevelSet::drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float alfa,float epsilon,int timestep, int iter,const char * potentialFunction)
 {
-	ImageF *phi=new ImageF(&phi_0);
+
+	ImageF *phi=new ImageF(phi_0);
 	int m=g.getXsize();
 	int n=g.getYsize();
 	ImageF *vx=gradientx(&g);
 	ImageF *vy=gradienty(&g);
+	Raw2D *diracPhi;
+
 	for(int i=0;i<iter;i++)
 	{
-		//NeumannBoundCond(phi);
-		ImageF &phi_x=*gradientxg0(phi);
-		ImageF &phi_y=*gradientyg0(phi);
+		NeumannBoundCond(phi);
+		ImageF &phi_x=*gradientx(phi);
+		ImageF &phi_y=*gradienty(phi);
 		Raw2D *s=new Raw2D(m,n);
 		*s=ImageFSqrt(phi_x,phi_y);
-		showImg(*s);
 		float smallNumber=1e-10;
 		ImageF *Nx=new ImageF(phi_x);
 		ImageF *Ny=new ImageF(phi_y);
 		//*Nx=pow(255,phi_x/(*s+smallNumber));
 		//*Ny=pow(255,phi_y/(*s+smallNumber));
-		*Nx=255*(phi_x/(*s+smallNumber));
-		*Ny=255*(phi_y/(*s+smallNumber));
+		*Nx=(phi_x/(*s+smallNumber));
+		*Ny=(phi_y/(*s+smallNumber));
 		ImageF * curvature=new ImageF(m,n);
 		*curvature=div(*Nx,*Ny);
 		ImageF *distRegTerm=new ImageF(m,n);
 		char *p1="single-well";
 		if (strcmp(potentialFunction,p1)+1)
-		{/*
+		{
+		/*
 		 compute distance regularization term in equation (13) 
 		 with the single-well potential p1.
 		 */
 			*distRegTerm= (4*(*del2(phi)) - (*curvature));
 		}
-
+		
 		else if (strcmp(potentialFunction,"double-well")+1)
 		{
 			*distRegTerm=distReg_p2(phi);  // compute the distance regularization term in eqaution (13) with the double-well potential p2.
-
-			printf("asda");
-
 		}
 		else printf("EEROR");
-
-
-		//float eplsion=0.1;
-		Raw2D *diracPhi=new Raw2D(Dirac(phi,epsilon));
-		//Raw2D* areaTerm=new Raw2D((255*g*(*diracPhi))); 
+		
+		diracPhi=new Raw2D(Dirac(phi,epsilon));
 		Raw2D* areaTerm=new Raw2D((g*(*diracPhi))); 
 		ImageF  *edgeTerm=new ImageF(m,n);
-		//*edgeTerm=255**diracPhi*(*vx**Nx+*vy**Ny) +255**diracPhi*g*(*curvature);
-		*edgeTerm = (*diracPhi) * ((*vx) * (*Nx))+((*vy)*(*Ny)) + (*diracPhi)*(g*(*curvature));
-		//phi_0=*phi;
-		//showImg(*curvature);
+		*edgeTerm = (*diracPhi) * ((*vx) * (*Nx))+((*vy) * (*Ny)) + (*diracPhi) * ( g * (*curvature));
 		*phi=*phi + timestep*(mu*(*distRegTerm) +lambda*(*edgeTerm) + alfa*(*areaTerm));
-		//phi_0=*del2(phi);
+		//IShowImg(*distRegTerm);
+		//IShowImg(*edgeTerm);
+		//IShowImg(*areaTerm);
+		//IShowImg(*phi);
+		//IShowImg(4*(*del2(phi)));
+		//IShowImg(*curvature);
+		//IShowImg(phi_x);
+		//IShowImg(phi_y);
+		//IShowImg(*Nx);
+		//IShowImg(*Ny);
+		//IShowImg(g);
+		//IShowImg(*s);
 		phi_0=*phi;
-
+	
+	
 	}	
 	//showImg(phi_0);
+	IShowImg(phi_0);
 	return phi_0; 
 }
+//ImageF& LevelSet::uchar2double(ImageF &img)
+//{
+//	int m=img.getXsize();
+//	int n=img.getYsize();
+//	for (int i=0;i<m;i++)
+//	{
+//		for (int j=0;j<n;j++)
+//		{
+//			img.put(i,j,double(img.get(i,j)));
+//		}
+//	}
+//}
 void LevelSet::testout(Raw2D *ret){
-	//PIXTYPE *test=ret->gety();
-	//memcpy(test,ret->gety(),100);
 
 	int i=0;
 

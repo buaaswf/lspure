@@ -6,15 +6,16 @@
 #include<iostream>
 #include <crtdbg.h> 
 #include "vol_math_Raw3D_Independt.h"
-
+#include "CImg.h" 
+using namespace cimg_library;
 static void showImg(Raw2D& img)
 {
-	IplImage *source = cvCreateImage(cvSize(img.getXsize(), img.getYsize()), 8, 1);
-	for (int i=0;i<source->width;i++)
+	IplImage *source = cvCreateImage(cvSize(img.getYsize(), img.getXsize()), 8, 1);
+	for (int i=0;i<source->height;i++)//
 	{
-		for (int j=0;j<source->height;j++)
+		for (int j=0;j<source->width;j++)//
 		{
-			CV_IMAGE_ELEM(source,uchar,i,j) = img.get(i,j);
+				CV_IMAGE_ELEM(source,uchar,i,j) = img.get(i,j);
 		}
 	}
 	if (source!=NULL)
@@ -26,5 +27,13 @@ static void showImg(Raw2D& img)
 	}
 	cvReleaseImage(&source);
 }
-
+static void IShowImg(Raw2D& img)
+{
+	CImg <int> sourceimage(img.getXsize(),img.getYsize(),1,1,0);
+	cimg_for_insideXY(sourceimage,x,y,0)
+	{
+		sourceimage(x,y,0)=img.get(x,y);
+	}
+	sourceimage.display("hello");
+}
 #endif

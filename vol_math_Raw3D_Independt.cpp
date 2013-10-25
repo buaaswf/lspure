@@ -28,11 +28,10 @@ Raw3D_Independt::~Raw3D_Independt(void)
 }
 #define M_EXP 2.7182818284590452353602874713527
  Raw2D::Raw2D(int xsize,int ysize,PIXTYPE *y)
-{
-	//float i=0.0f;
-	this->xsize=xsize;
-	this->ysize=ysize;
-	this->data=y;
+ {
+	 this->xsize=xsize;
+	 this->ysize=ysize;
+	 this->data=y;
 }
 
  Raw2D::Raw2D( int xsize,int ysize )

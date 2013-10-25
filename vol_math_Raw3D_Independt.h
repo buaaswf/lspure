@@ -4,7 +4,7 @@
 #include <iostream>
 using namespace std;
 
-typedef unsigned char PIXTYPE;
+typedef unsigned char  PIXTYPE;
 class Raw3D;
 class Raw2D
 {
@@ -21,8 +21,8 @@ private:   			//-----------------DATA-----------------
 	}
 
 public:				//---------------init fcns-------------
-	const static PIXTYPE MAXPIXEL = 255;
-	const static PIXTYPE MINPIXEL = 0;
+	const static int MAXPIXEL = 255;
+	const static int  MINPIXEL = 0;
 
 	Raw2D(int,int,PIXTYPE *);
 	Raw2D(int,int);
