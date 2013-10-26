@@ -46,7 +46,14 @@ Raw3D_Independt::~Raw3D_Independt(void)
 	 this->xsize=r->xsize;
 	 this->ysize=r->ysize;
 	 this->data=new PIXTYPE[xsize*ysize];
-	 memcpy(this->data,r->data,xsize*ysize);
+	 //for (int i=0;i<xsize;i++)
+	 //{
+		// for (int j=0;j<ysize;j++)
+		// {
+		//	 data[i*ysize+j]=r->data[i*(r->ysize)+j];
+		// }
+	 //}
+	memcpy(this->data,r->data,sizeof(double)*xsize*ysize);
  }
 
  Raw2D::Raw2D(Raw2D& r)
@@ -54,7 +61,14 @@ Raw3D_Independt::~Raw3D_Independt(void)
 	 this->xsize=r.xsize;
 	 this->ysize=r.ysize;
 	 this->data=new PIXTYPE[xsize*ysize];
-	 memcpy(this->data,r.data,xsize*ysize);
+	 //for (int i=0;i<xsize;i++)
+	 //{
+		// for (int j=0;j<ysize;j++)
+		// {
+		//	 data[i*ysize+j]=r.data[i*(r.ysize)+j];
+		// }
+	 //}
+	 memcpy(this->data,r.data,sizeof(double)*xsize*ysize);
  }
 
  Raw2D::~Raw2D(void)

@@ -30,7 +30,7 @@ int main()
 		for (int j=0;j<y;j++)
 		{
 			//p[i*y+j]=CV_IMAGE_ELEM(source,uchar,i,j);
-			p[i*y+j]=source.atXY(i,j)/255.0;
+			p[i*y+j]=(double)source.atXY(i,j);
 		}
 	}
 
@@ -42,14 +42,14 @@ int main()
 	{
 		for (int j=0;j<y;j++)
 		{
-			if(i>25&&i<35&&j>40&&j<50)
-				initial->putXY(i*y+j,1.0);
-			else if (i<25||i>35||j<40||j>50)
+			if(i>35&&i<45&&j>20&&j<30)
+				initial->putXY(i*y+j,2.0);
+			else if (i<35||i>45||j<20||j>30)
 			{
-				initial->putXY(i*y+j,-1.0);
+				initial->putXY(i*y+j,-2.0);
 			}
 
-			else	initial->putXY(i*y+j,0);
+			else	initial->putXY(i*y+j,-2.0);
 			//cout<<initial->get(i,j)<<endl;
 			
 		}
@@ -65,9 +65,9 @@ int main()
 	ls->initialg(*raw2d);
 	
 	char const *pt="single-well";
-	int iter_outer=1;
+	int iter_outer=100;
 	
-	ls->drlse_edge(*initial,*raw2d,5.0,0.2,-3,255,1,iter_outer,pt);
+	ls->drlse_edge(*initial,*raw2d,5.0,0.2,-3,1.5,1,iter_outer,pt);
 
 	 system("pause");
 }

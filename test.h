@@ -32,7 +32,12 @@ static void IShowImg(Raw2D& img)
 	CImg <double> sourceimage(img.getYsize(),img.getXsize(),1,1,0);
 	cimg_for_insideXY(sourceimage,x,y,0)
 	{
-		sourceimage(x,y,0)=img.get(y,x);
+		PIXTYPE val=img.get(y,x);
+		if (val>0)
+		{
+			sourceimage(x,y,0)=(double)(val);
+		}
+		
 	}
 	sourceimage.display("hello");
 }
