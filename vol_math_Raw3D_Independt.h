@@ -1,3 +1,6 @@
+#ifndef _VOL_MATH_RAW3D_INDEPENDT_H_
+#define _VOL_MATH_RAW3D_INDEPENDT_H_
+
 #ifndef Raw2D_H
 #define Raw2D_H
 
@@ -12,7 +15,7 @@ private:   			//-----------------DATA-----------------
 	int xsize;		// # of pixels per scanline,
 	int ysize;		// # of scanlines in this Raw2D.
 	PIXTYPE *data;		// 1D array of PIXTYPE that are accessed as a 2D array.
-	
+
 	void putData(const PIXTYPE *res)
 	{
 		if (data != NULL)
@@ -38,26 +41,32 @@ public:				//---------------init fcns-------------
 	int getYsize(void) const {return ysize;}		// get # of scanlines.
 
 	inline void put(int ix, int iy, PIXTYPE val)	// write 'val' at location ix,iy.
-	{	
+	{
+#ifdef _DEBUG  //only check under debug mode
 		if (iy + ysize*ix < xsize*ysize)
 		{
-			data[iy + ysize*ix] = val; 
+#endif
+			data[iy + ysize*ix] = val;
+#ifdef _DEBUG
 		}
 		else 
 			cout<<"out of size put"<<endl;
+#endif
 	}
 
 	inline PIXTYPE get(int ix, int iy) {	// read the value at ix,iy.
-		//int index=ix + xsize*iy;
+#ifdef _DEBUG
 		if(iy + ysize*ix<=xsize*ysize)
 		{
-			int index=iy + ysize*ix;
-			return(data[index]); 
+#endif
+			return data[iy + ysize*ix]; 
+#ifdef _DEBUG
 		}
 		else 
 		{
 			cout<<"out of size get"<<endl;
 		}
+#endif
 	}
 
 	PIXTYPE getXY(int ixy)
@@ -78,7 +87,7 @@ public:				//---------------init fcns-------------
 			data[ixy] = val;
 		}
 		else cout<<"out of size putxy"<<endl;
-		
+
 	}
 	bool Raw2D::wipecopy(Raw2D* src);
 
@@ -97,18 +106,42 @@ public:				//---------------init fcns-------------
 
 	//Builds the stack of min-max image gradients; returns the range variance
 	PIXTYPE buildMinMaxImageStack(Raw2D* pX, Raw2D* pY, Raw3D* pMinStack,
-			Raw3D* pMaxStack , int levelMax, PIXTYPE beta); 
-	
-		//Finds the adaptive neighborhood size (stack level) 
-		//from the min-max gradient stack
-		void findAdaptiveRegion(Raw3D* pMinStack, Raw3D* pMaxStack, PIXTYPE R, int levelMax); 
+		Raw3D* pMaxStack , int levelMax, PIXTYPE beta); 
+
+	//Finds the adaptive neighborhood size (stack level) 
+	//from the min-max gradient stack
+	void findAdaptiveRegion(Raw3D* pMinStack, Raw3D* pMaxStack, PIXTYPE R, int levelMax); 
 
 	//Filters the detail signal and computes the final output image	
 	void DetailBilateralFilter(Raw2D* srcImg, Raw2D* pSmoothX, Raw2D* pSmoothY, 
 		Raw2D* fTheta, float sigmaCTheta, float sigmaRTheta); 
-	
+
 };
+
+
+#ifdef _WIN32
+#pragma region Raw2D_Opt  //Operator overload on Raw2d
 #endif
+/************************ operation on Raw2D ******************************/
+Raw2D& operator *(double p1, Raw2D &x);
+Raw2D& operator *(float p1, Raw2D &x);
+Raw2D& operator *(Raw2D &x,Raw2D &y);
+Raw2D* operator *(Raw2D &x,Raw2D *y);
+Raw2D& operator /(Raw2D &x,double t);
+Raw2D& operator /(double t,Raw2D &x);
+Raw2D& operator /(Raw2D &x,Raw2D &y);
+Raw2D& operator +(Raw2D &x, float s);
+Raw2D& operator +(Raw2D &x,Raw2D &y);
+Raw2D& operator -(Raw2D &x,Raw2D &y);
+Raw2D& operator -(Raw2D *x,Raw2D &y);
+Raw2D& operator -(Raw2D &x,double s);
+/************************ end operation on Raw2D ***************************/
+#ifdef _WIN32
+#pragma endregion Raw2D_Opt
+#endif
+
+#endif  //Raw2D_H
+
 #ifndef Raw3D_H
 #define Raw3D_H
 
@@ -141,6 +174,7 @@ public:
 	void wipecopy(Raw3D& src);			// copy, resize as needed.
 };
 #endif
+
 #ifndef Raw3D_Independt_H
 #define Raw3D_Independt_H
 class Raw3D_Independt
@@ -150,3 +184,5 @@ public:
 	~Raw3D_Independt(void);
 };
 #endif
+
+#endif //_VOL_MATH_RAW3D_INDEPENDT_H_

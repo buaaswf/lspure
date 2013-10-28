@@ -12,18 +12,11 @@ int i,j;
 LevelSet::~LevelSet(void)
 {
 	cout<<"Destructor called"<<endl;
-
-
 }
+
 //*ImageF Dirac(ImageF x,float sigma);*/
 Raw2D& regFunction(Raw2D &s,int m,int n);
-Raw2D& operator+(Raw2D &x,Raw2D &y);
-Raw2D& operator+(Raw2D &x,float s);
 Raw2D& cos(Raw2D &x);
-Raw2D& operator *(double p1,Raw2D &x);
-Raw2D& operator * (Raw2D &x,Raw2D &y);
-Raw2D* operator * (Raw2D &x,Raw2D *y);
-Raw2D& operator / (Raw2D &x,double);
 Raw2D& sin(Raw2D &s);
 Raw2D* Dirac(Raw2D *x,float sigma)
 {
@@ -98,10 +91,6 @@ Raw2D* gradientxgorignal(Raw2D *g)
 			else 
 				temp2=m-1;*/
 			ret->put(i,j,(g->get(i,temp1+1)-g->get(i,temp1)));
-
-
-
-
 		}
 	}
 	return ret;
@@ -361,290 +350,18 @@ Raw2D* ImageFSqrt(Raw2D &x,Raw2D &y)
 	}
 	return ret;
 }
-Raw2D& operator *(double p1,Raw2D &x)
-{
-
-	//p=x.gety();
-	Raw2D *ret=new Raw2D(x);
-	int m=x.getXsize();
-	int n=x.getYsize();
-	for (i=0;i<m;i++)
-	{
-		for(j=0;j<n;j++)
-		{
-			//*(p+i*n+j)=*(p+i*n+j)*p1;
-			ret->put(i,j,x.get(i,j)*p1);
-		}
-
-	}
-	return *ret;
-
-}
-
-Raw2D& operator *(float p1,Raw2D &x)
-{
-
-	//p=x.gety();
-	Raw2D *ret=new Raw2D(x);
-	int m=x.getXsize();
-	int n=x.getYsize();
-	for (i=0;i<m;i++)
-	{
-		for(j=0;j<n;j++)
-		{
-
-			ret->put(i,j,x.get(i,j)*p1);
-		}
-
-	}
-	return *ret;
-
-}
-Raw2D& operator * (Raw2D &x,Raw2D &y)
-{
-	Raw2D *ret=new Raw2D(x);
-	int m=x.getXsize();
-	int n=x.getYsize();
-	for (i=0;i<m;i++)
-	{
-		for(j=0;j<n;j++)
-		{
-			ret->put(i,j,ret->get(i,j)*y.get(i,j));
-		}
-
-	}
-	return *ret;
-
-}
-Raw2D* operator * (Raw2D &x,Raw2D *y)
-{
-	Raw2D *ret=new Raw2D(x);
-	int n=x.getXsize();
-	int m=x.getYsize();
-	for (int i=0;i<n;i++)
-	{
-		for(int j=0;j<m;j++)
-		{
-			
-			ret->put(i,j,x.get(i,j)*y->get(i,j));
-		}
-
-	}
-	return ret;
-
-}
-//ImageF& operator/(ImageF &xdata,ImageF& ydata)
-//{
-//	/*array the corresponding position*/
-//	//p=xdata.gety();
-//	//q=ydata.gety();
-//	ImageF *ret=new ImageF(xdata);
-//	int m=xdata.getXsize();
-//	int n=xdata.getYsize();
-//	for (i=0;i<m;i++)
-//	{
-//		for(j=0;j<n;j++)
-//		{
-//			/*if(*(q+i*n+j)!=0)
-//				*(p+i*n+j)=*(p+i*n+j)/(*(q+i*n+j));*/
-//			if (ydata.get(i,j)!=0)
-//			{
-//				ret->put(i,j,xdata.get(i,j)/ydata.get(i,j));
-//
-//			}
-//		}
-//
-//	}
-//	return *ret;
-//
-//}
-
-Raw2D& operator/(Raw2D &x,double t)
-
-{
-	//p=x.gety();
-	Raw2D *ret=new Raw2D(x);
-	int m=x.getXsize();
-	int n=x.getYsize();
-	PIXTYPE temp;
-	for (i=0;i<m;i++)
-	{
-		for(j=0;j<n;j++)
-		{
-			temp=x.get(i,j)/t;
-			ret->put(i,j,temp);
-		}
-
-	}
-	return *ret;
-
-}
-Raw2D& operator/(double t,Raw2D &x)
-
-{
-	Raw2D *ret=new Raw2D(x);
-	int m=x.getXsize();
-	int n=x.getYsize();
-	for (i=0;i<m;i++)
-	{
-		for(j=0;j<n;j++)
-		{
-			ret->put(i,j,t/(x.get(i,j)));
-		}
-
-	}
-	return *ret;
-
-}
-Raw2D&  operator+( Raw2D  &x,float s)
-{
-	//p=x.gety();
-	Raw2D *ret=new Raw2D(x);
-	int m=x.getXsize();
-	int n=x.getYsize();
-	double val=0;
-	for (i=0;i<m;i++)
-	{
-		for(j=0;j<n;j++)
-		{
-			val=x.get(i,j)+s;
-			if (0<val&&val<255)
-			{
-				ret->put(i,j,val);
-			}
-			else
-			{
-				ret->put(i,j,val);
-			}
-		}
-
-	}
-	return *ret;
-
-}
 
 //curvature
 Raw2D& div(Raw2D &x, Raw2D &y)
 {
 	Raw2D *ret=new Raw2D(x.getXsize(),x.getYsize());
 	Raw2D *gradx = gradientxgc(&x),
-		  *grady = gradientygc(&y);
+		*grady = gradientygc(&y);
 	*ret = -1.0*(*gradx + *grady);
 	return *ret;
 }
 
-Raw2D& operator+(Raw2D &x,Raw2D &y)
-{
-	int m=x.getXsize();
-	int n=x.getYsize();
-	Raw2D *ret=new Raw2D(m, n);
-	double  val=0;
-	for (i=0;i<m;i++)
-	{
-		for(j=0;j<n;j++)
-		{
-			val=x.get(i,j)+y.get(i,j);
-			if (val<256)
-			{
-				ret->put(i, j, val);
-			}
-			else 
-			{
-				ret->put(i,j,val);
-			}
-			
-		}
-	}
-	return *ret;
-}
 
-Raw2D& operator -(Raw2D &x,Raw2D &y)
-{
-	Raw2D *ret=new Raw2D(x);
-	int m=x.getXsize();
-	int n=x.getYsize();
-	PIXTYPE val=0;
-	for (i=0;i<m;i++)
-	{
-		for(j=0;j<n;j++)
-		{
-			val=x.get(i,j)-y.get(i,j);
-			if (val>0)
-			{
-				ret->put(i,j,x.get(i,j)-y.get(i,j));
-			}
-			else 
-			{
-				ret->put(i,j,val);
-			}
-		
-		}
-
-	}
-	return *ret;
-}
-Raw2D& operator -(Raw2D *x,Raw2D &y)
-{
-	Raw2D *ret=new Raw2D(x);
-	int m=x->getXsize();
-	int n=x->getYsize();
-	PIXTYPE val=0;
-	for (i=0;i<m;i++)
-	{
-		for(j=0;j<n;j++)
-		{
-			val=x->get(i,j)-y.get(i,j);
-			if (val>0)
-			{
-				ret->put(i,j,x->get(i,j)-y.get(i,j));
-			}
-			else 
-			{
-				ret->put(i,j,val);
-			}
-
-		}
-
-	}
-	return *ret;
-}
-Raw2D& operator -(Raw2D &x,double  s)
-{
-	Raw2D *ret=new Raw2D(x);
-	int m=x.getXsize();
-	int n=x.getYsize();
-	int val=0;
-	for (i=0;i<m;i++)
-	{
-		for(j=0;j<n;j++)
-		{
-			val=x.get(i,j)-s;
-			if(val>0)
-			ret->put(i,j,x.get(i,j)-s);
-			else 
-				ret->put(i,j,val);
-		}
-
-	}
-	return *ret;
-}
-Raw2D & operator/(Raw2D &x,Raw2D &y)
-{
-	Raw2D *ret=new Raw2D(x);
-	int m=x.getXsize();
-	int n=x.getYsize();
-	for (i=0;i<m;i++)
-	{
-		for(j=0;j<n;j++)
-		{
-			ret->put(i,j,((PIXTYPE)x.get(i,j))/((PIXTYPE)y.get(i,j)));
-		}
-
-	}
-	return *ret;
-
-
-}
 Raw2D* del2(Raw2D *phi)
 {
 	int m=phi->getXsize();
@@ -750,22 +467,23 @@ void write(Raw2D &destImg)
 	//fclose(p);
 }
 
-Raw2D& LevelSet::initialg(Raw2D &g)
+void LevelSet::initialg(Raw2D *g)
 {
-	Raw2D *ret=new Raw2D(&g);
-	Raw2D *gx=gradientxgc(ret);
-	Raw2D *gy=gradientygc(ret);
+	Raw2D *gx=gradientxgc(g);
+	Raw2D *gy=gradientygc(g);
 	//g=*ret;
-	g=*gx**gx+*gy**gy;
+	*g = (*gx)*(*gx)+(*gy)*(*gy);
+	//  add( multi(gx,gx), multi(gy, gy))
 	//IShowImg(g);
 	//g=(255/(g+1));//or  unsigned char version
 	//g=-255/(g+1)+255;unsigned char version
 	//g=-1*g+255; unsigned char version
-	g=g+1.0;
-	g=1.0/g;
+	*g = (*g)+1.0;
+	*g = 1.0/(*g);
 	//IShowImg(g);
-	delete ret;
-	return g;
+
+	delete gx;
+	delete gy;
 }
 //
 //ImageF & pow(PIXTYPE e,ImageF &x)

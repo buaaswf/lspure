@@ -1,9 +1,5 @@
-#include"ImageF.h"
 #include "vol_math_LevelSet.h"
-#include"levelset.h"
 #include "test.h"
-//#include "cv.h"
-//#include "highgui.h"
 #include<iostream>
 #include <crtdbg.h> 
 #include "CImg.h" 
@@ -85,7 +81,7 @@ int main()
 	//raw2d->guassConv(raw2d,2);
 	//Raw2D *data=new Raw2D(raw2d);
 	LevelSet *ls=new LevelSet();
-	ls->initialg(*raw2d);
+	ls->initialg(raw2d);
 	//enum PotentialFunction{single_well = 1,double_well};
 	char const *pt="single_well";
 	int iter_outer=50;
