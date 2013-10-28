@@ -33,10 +33,10 @@ static void IShowImg(Raw2D& img)
 	cimg_for_insideXY(sourceimage,x,y,0)
 	{
 		PIXTYPE val=img.get(y,x);
-		if (val>0)
-		{
+		/*if (val>0)
+		{*/
 			sourceimage(x,y,0)=(double)(val);
-		}
+	/*	}*/
 		
 	}
 	sourceimage.display("hello");

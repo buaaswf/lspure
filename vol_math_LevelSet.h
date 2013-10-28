@@ -9,12 +9,12 @@ using  std::string;
 class LevelSet
 {
 public:
-	ImageF regFunction(ImageF &s,int m,int n);
-	ImageF& initialg(ImageF &g);
+	Raw2D regFunction(Raw2D &s,int m,int n);
+	Raw2D& initialg(Raw2D &g);
 	//LevelSet(void);
 	~LevelSet(void);
-	ImageF& drlse_edge(ImageF &phi_0,ImageF &g,float lambda,float mu,float alfa,float epsilon,int timestep, int iter,const char * sada);
-	ImageF& uchar2double(ImageF &img);
+	void drlse_edge(Raw2D *phi,Raw2D *g,float lambda,float mu,float alfa,float epsilon,int timestep, int iter,const char * sada);
+	Raw2D& uchar2double(Raw2D &img);
 	void testout(Raw2D *ret);
 };
 
