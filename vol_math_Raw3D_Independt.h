@@ -7,7 +7,7 @@
 #include <iostream>
 using namespace std;
 
-typedef double  PIXTYPE;
+typedef double PIXTYPE;
 class Raw3D;
 class Raw2D
 {
@@ -27,13 +27,16 @@ public:				//---------------init fcns-------------
 	const static int MAXPIXEL = 255;
 	const static int  MINPIXEL = 0;
 
-	Raw2D(int,int,PIXTYPE *);
-	Raw2D(int,int);
+	Raw2D(int, int, PIXTYPE*);
+	Raw2D(int, int);
 	Raw2D(Raw2D* r);
-	Raw2D(Raw2D& r);
+	Raw2D(const Raw2D& r);
 	Raw2D(void);		// constructor for 'empty' Raw2Ds
 	~Raw2D(void);		// destructor; releases memory
 
+	int size() const { return xsize*ysize; }
+
+	/// \brief Swap data with img
 	Raw2D& swap(Raw2D& img)
 	{
 		std::swap(this->xsize, img.xsize);
@@ -48,8 +51,107 @@ public:				//---------------init fcns-------------
 		return *this;
 	}
 
+	Raw2D& operator+=(const Raw2D &img)
+	{
+		for (int i = 0; i < size(); ++i)
+			this->data[i] += img.data[i];
+		return *this;
+	}
+
+	Raw2D & operator+=(const PIXTYPE val)
+	{
+		for (int i = 0; i < size(); ++i)
+		{
+			this->data[i] += val;
+		}
+		return *this;
+	}
+
+	Raw2D operator+(const Raw2D &img)
+	{
+		return Raw2D(*this) += img;
+	}
+
+	Raw2D operator+(const PIXTYPE val)
+	{
+		return Raw2D(*this) += val;
+	}
+
+	Raw2D & operator-=( const Raw2D &img)
+	{
+		for (int i = 0; i<size();++i)
+			this->data[i] -= img.data[i];
+		return *this;
+	}
+
+	Raw2D & operator -= ( const PIXTYPE val)
+	{
+		for (int i=0;i<size();i++)
+			this->data[i]-=val;
+		return *this;
+	}
+
+	Raw2D operator -(const Raw2D &img)
+	{
+		return Raw2D(*this)-=img;
+	}
+
+	Raw2D operator - (const PIXTYPE val)
+	{
+		return Raw2D(*this) -= val;
+	}
+
+	Raw2D& operator*=(const Raw2D& img)
+	{
+		for (int i = 0; i < size(); ++i)
+			this->data[i] *= img.data[i];
+		return *this;
+	}
+
+	Raw2D& operator*=(const PIXTYPE val)
+	{
+		for (int i = 0; i < size(); ++i)
+			this->data[i] *= val;
+		return *this;
+	}
+
+	Raw2D operator*(const Raw2D& img)
+	{
+		return Raw2D(*this) *= img;
+	}
+
+	Raw2D operator*(const PIXTYPE val)
+	{
+		return Raw2D(*this) *= val;
+	}
+
+	Raw2D& operator/=(const Raw2D& img)
+	{
+		for (int i = 0; i < size(); ++i)
+			this->data[i] /= img.data[i];
+		return *this;
+	}
+
+	Raw2D& operator/=(const PIXTYPE val)
+	{
+		for (int i = 0; i < size(); ++i)
+			this->data[i] /= val;
+		return *this;
+	}
+
+	Raw2D operator/(const Raw2D& img)
+	{
+		return Raw2D(*this) /= img;
+	}
+
+	Raw2D operator/(const PIXTYPE val)
+	{
+		return Raw2D(*this) *= val;
+	}
+
+	friend Raw2D operator/(const PIXTYPE val, const Raw2D& img);
+
 	void sizer(int ixsize, int iysize);	// get mem for rectangle of pixels
-	void guassConv(int halfsize);		//gauss filter
 	void sizer(Raw2D* src);					// get same amt. of mem as 'src'
 	int getXsize(void) const {return xsize;}		// get # pixels per scanline
 	int getYsize(void) const {return ysize;}		// get # of scanlines.
@@ -57,7 +159,7 @@ public:				//---------------init fcns-------------
 	inline void put(int ix, int iy, PIXTYPE val)	// write 'val' at location ix,iy.
 	{
 #ifdef _DEBUG  //only check under debug mode
-		if (iy + ysize*ix < xsize*ysize)
+		if (iy + ysize*ix < size())
 		{
 #endif
 			data[iy + ysize*ix] = val;
@@ -70,7 +172,7 @@ public:				//---------------init fcns-------------
 
 	inline PIXTYPE get(int ix, int iy) {	// read the value at ix,iy.
 #ifdef _DEBUG
-		if(iy + ysize*ix<=xsize*ysize)
+		if(iy + ysize*ix<=size())
 		{
 #endif
 			return data[iy + ysize*ix]; 
@@ -105,54 +207,7 @@ public:				//---------------init fcns-------------
 	}
 	bool Raw2D::wipecopy(Raw2D* src);
 
-	//---------------Trilateral Filter fcns-------------
-
-	//Trilateral filter consisting of gradient filter, adaptive neighborhood
-	//computation and detail filter
-	void TrilateralFilter(Raw2D* srcImg, PIXTYPE sigmaC); 
-
-	//Computes X and Y gradients of the input image
-	void ComputeGradients(Raw2D* pX, Raw2D* pY); 
-
-	//Bilaterally filters  gradients pX and pY 
-	void BilateralGradientFilter(Raw2D* pX, Raw2D* pY, Raw2D* pSmoothX, 
-		Raw2D* pSmoothY, PIXTYPE sigmaC, PIXTYPE sigmaS, int filterSize); 
-
-	//Builds the stack of min-max image gradients; returns the range variance
-	PIXTYPE buildMinMaxImageStack(Raw2D* pX, Raw2D* pY, Raw3D* pMinStack,
-		Raw3D* pMaxStack , int levelMax, PIXTYPE beta); 
-
-	//Finds the adaptive neighborhood size (stack level) 
-	//from the min-max gradient stack
-	void findAdaptiveRegion(Raw3D* pMinStack, Raw3D* pMaxStack, PIXTYPE R, int levelMax); 
-
-	//Filters the detail signal and computes the final output image	
-	void DetailBilateralFilter(Raw2D* srcImg, Raw2D* pSmoothX, Raw2D* pSmoothY, 
-		Raw2D* fTheta, float sigmaCTheta, float sigmaRTheta); 
-
 };
-
-
-#ifdef _WIN32
-#pragma region Raw2D_Opt  //Operator overload on Raw2d
-#endif
-/************************ operation on Raw2D ******************************/
-Raw2D operator *(double p1, Raw2D &x);
-Raw2D operator *(float p1, Raw2D &x);
-Raw2D operator *(Raw2D &x,Raw2D &y);
-Raw2D* operator *(Raw2D &x,Raw2D *y);
-Raw2D operator /(Raw2D &x,double t);
-Raw2D operator /(double t,Raw2D &x);
-Raw2D operator /(Raw2D &x,Raw2D &y);
-Raw2D operator +(Raw2D &x, float s);
-Raw2D operator +(Raw2D &x,Raw2D &y);
-Raw2D operator -(Raw2D &x,Raw2D &y);
-Raw2D operator -(Raw2D *x,Raw2D &y);
-Raw2D operator -(Raw2D &x,double s);
-/************************ end operation on Raw2D ***************************/
-#ifdef _WIN32
-#pragma endregion Raw2D_Opt
-#endif
 
 #endif  //Raw2D_H
 

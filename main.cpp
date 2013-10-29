@@ -1,6 +1,6 @@
 #include "vol_math_LevelSet.h"
 #include "test.h"
-#include<iostream>
+#include <iostream>
 #include <crtdbg.h> 
 #include "CImg.h" 
 using namespace cimg_library;

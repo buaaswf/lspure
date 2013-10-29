@@ -6,11 +6,6 @@
 class Filter
 {
 public:
-	/*
-	Raw2D *res = guassFilter(xxx, 1);
-	//@tudo code here
-	delete res;
-	*/
 	static Raw2D* guassFilter(Raw2D* src, int halfsize)
 	{
 		int i=0,j=0,m=0,n=0,width=0,length=0,index=0;
@@ -55,6 +50,29 @@ public:
 		
 		return guass;
 	}
+
+	//Trilateral filter consisting of gradient filter, adaptive neighborhood
+	//computation and detail filter
+	void TrilateralFilter(Raw2D* srcImg, PIXTYPE sigmaC); 
+
+	//Computes X and Y gradients of the input image
+	void ComputeGradients(Raw2D* pX, Raw2D* pY); 
+
+	//Bilaterally filters  gradients pX and pY 
+	void BilateralGradientFilter(Raw2D* pX, Raw2D* pY, Raw2D* pSmoothX, 
+		Raw2D* pSmoothY, PIXTYPE sigmaC, PIXTYPE sigmaS, int filterSize); 
+
+	//Builds the stack of min-max image gradients; returns the range variance
+	PIXTYPE buildMinMaxImageStack(Raw2D* pX, Raw2D* pY, Raw3D* pMinStack,
+		Raw3D* pMaxStack , int levelMax, PIXTYPE beta); 
+
+	//Finds the adaptive neighborhood size (stack level) 
+	//from the min-max gradient stack
+	void findAdaptiveRegion(Raw3D* pMinStack, Raw3D* pMaxStack, PIXTYPE R, int levelMax); 
+
+	//Filters the detail signal and computes the final output image	
+	void DetailBilateralFilter(Raw2D* srcImg, Raw2D* pSmoothX, Raw2D* pSmoothY, 
+		Raw2D* fTheta, float sigmaCTheta, float sigmaRTheta); 
 };
 
 #endif
