@@ -50,22 +50,20 @@ Raw2D::Raw2D( Raw2D *r)
 	//	 data[i*ysize+j]=r->data[i*(r->ysize)+j];
 	// }
 	//}
-	memcpy(this->data,r->data,sizeof(double)*xsize*ysize);
+	memcpy(this->data,r->data,sizeof(PIXTYPE)*xsize*ysize);
 }
 
 Raw2D::Raw2D(Raw2D& r)
 {
-	this->xsize=r.xsize;
-	this->ysize=r.ysize;
-	this->data=new PIXTYPE[xsize*ysize];
-	//for (int i=0;i<xsize;i++)
-	//{
-	// for (int j=0;j<ysize;j++)
-	// {
-	//	 data[i*ysize+j]=r.data[i*(r.ysize)+j];
-	// }
-	//}
-	memcpy(this->data,r.data,sizeof(double)*xsize*ysize);
+	if (this->xsize != r.getXsize() && this->ysize != r.getYsize())
+	{
+		this->xsize=r.xsize;
+		this->ysize=r.ysize;
+		if (this->data != NULL)
+			delete[] this->data;
+		this->data=new PIXTYPE[xsize*ysize];
+	}
+	memcpy(this->data, r.data, sizeof(PIXTYPE)*xsize*ysize);
 }
 
 Raw2D::~Raw2D(void)
@@ -73,14 +71,14 @@ Raw2D::~Raw2D(void)
 	if(this->data!=NULL)
 		delete [] this->data;
 	data=NULL;
-	//cout<<"RAW2D is deconstruct"<<endl;
 }
+
 /* Raw3D::Raw3D(void)
 {
 z=new Raw2D();
 zsize=0;
-
 }*/
+
 Raw3D::Raw3D(int zsize,Raw2D *src)
 {
 	this->zsize=zsize;
@@ -714,7 +712,7 @@ void Raw2D::guassConv(int halfsize)
 #pragma region Raw2D_Opt  //Operator overload on Raw2d
 #endif
 /************************ operation on Raw2D ******************************/
-Raw2D& operator *(double p1, Raw2D &x)
+Raw2D operator *(double p1, Raw2D &x)
 {
 	int m=x.getXsize();
 	int n=x.getYsize();
@@ -730,7 +728,7 @@ Raw2D& operator *(double p1, Raw2D &x)
 	return ret;
 }
 
-Raw2D& operator *(float p1, Raw2D &x)
+Raw2D operator *(float p1, Raw2D &x)
 {
 	int m = x.getXsize();
 	int n = x.getYsize();
@@ -746,7 +744,7 @@ Raw2D& operator *(float p1, Raw2D &x)
 	return ret;
 }
 
-Raw2D& operator * (Raw2D &x,Raw2D &y)
+Raw2D operator * (Raw2D &x,Raw2D &y)
 {
 	int m=x.getXsize();
 	int n=x.getYsize();
@@ -779,7 +777,7 @@ Raw2D* operator * (Raw2D &x,Raw2D *y)
 	return ret;
 }
 
-Raw2D& operator/(Raw2D &x,double t)
+Raw2D operator/(Raw2D &x,double t)
 {
 	int m=x.getXsize();
 	int n=x.getYsize();
@@ -797,7 +795,7 @@ Raw2D& operator/(Raw2D &x,double t)
 }
 
 /// @tudo check Raw2D value
-Raw2D& operator/(double t,Raw2D &x)
+Raw2D operator/(double t,Raw2D &x)
 {
 	int m=x.getXsize();
 	int n=x.getYsize();
@@ -814,7 +812,7 @@ Raw2D& operator/(double t,Raw2D &x)
 }
 
 /// @tudo check Raw2D value
-Raw2D & operator/(Raw2D &x,Raw2D &y)
+Raw2D operator/(Raw2D &x,Raw2D &y)
 {
 	int m=x.getXsize();
 	int n=x.getYsize();
@@ -830,7 +828,7 @@ Raw2D & operator/(Raw2D &x,Raw2D &y)
 	return ret;
 }
 
-Raw2D& operator+( Raw2D &x, float s)
+Raw2D operator+( Raw2D &x, float s)
 {
 	int m = x.getXsize();
 	int n = x.getYsize();
@@ -849,7 +847,7 @@ Raw2D& operator+( Raw2D &x, float s)
 	return ret;
 }
 
-Raw2D& operator+(Raw2D &x,Raw2D &y)
+Raw2D operator+(Raw2D &x,Raw2D &y)
 {
 	int m=x.getXsize();
 	int n=x.getYsize();
@@ -874,7 +872,7 @@ Raw2D& operator+(Raw2D &x,Raw2D &y)
 	return ret;
 }
 
-Raw2D& operator -(Raw2D &x,Raw2D &y)
+Raw2D operator -(Raw2D &x,Raw2D &y)
 {
 	int m=x.getXsize();
 	int n=x.getYsize();
@@ -899,7 +897,7 @@ Raw2D& operator -(Raw2D &x,Raw2D &y)
 	return ret;
 }
 
-Raw2D& operator -(Raw2D *x,Raw2D &y)
+Raw2D operator -(Raw2D *x,Raw2D &y)
 {
 	int m=x->getXsize();
 	int n=x->getYsize();
@@ -925,7 +923,7 @@ Raw2D& operator -(Raw2D *x,Raw2D &y)
 	return ret;
 }
 
-Raw2D& operator -(Raw2D &x,double s)
+Raw2D operator -(Raw2D &x,double s)
 {
 	int m=x.getXsize();
 	int n=x.getYsize();

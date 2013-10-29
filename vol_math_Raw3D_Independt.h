@@ -34,6 +34,20 @@ public:				//---------------init fcns-------------
 	Raw2D(void);		// constructor for 'empty' Raw2Ds
 	~Raw2D(void);		// destructor; releases memory
 
+	Raw2D& swap(Raw2D& img)
+	{
+		std::swap(this->xsize, img.xsize);
+		std::swap(this->ysize, img.ysize);
+		std::swap(this->data, img.data);
+		return img;
+	}
+
+	Raw2D& operator=(Raw2D img)
+	{
+		img.swap(*this);
+		return *this;
+	}
+
 	void sizer(int ixsize, int iysize);	// get mem for rectangle of pixels
 	void guassConv(int halfsize);		//gauss filter
 	void sizer(Raw2D* src);					// get same amt. of mem as 'src'
@@ -123,18 +137,18 @@ public:				//---------------init fcns-------------
 #pragma region Raw2D_Opt  //Operator overload on Raw2d
 #endif
 /************************ operation on Raw2D ******************************/
-Raw2D& operator *(double p1, Raw2D &x);
-Raw2D& operator *(float p1, Raw2D &x);
-Raw2D& operator *(Raw2D &x,Raw2D &y);
+Raw2D operator *(double p1, Raw2D &x);
+Raw2D operator *(float p1, Raw2D &x);
+Raw2D operator *(Raw2D &x,Raw2D &y);
 Raw2D* operator *(Raw2D &x,Raw2D *y);
-Raw2D& operator /(Raw2D &x,double t);
-Raw2D& operator /(double t,Raw2D &x);
-Raw2D& operator /(Raw2D &x,Raw2D &y);
-Raw2D& operator +(Raw2D &x, float s);
-Raw2D& operator +(Raw2D &x,Raw2D &y);
-Raw2D& operator -(Raw2D &x,Raw2D &y);
-Raw2D& operator -(Raw2D *x,Raw2D &y);
-Raw2D& operator -(Raw2D &x,double s);
+Raw2D operator /(Raw2D &x,double t);
+Raw2D operator /(double t,Raw2D &x);
+Raw2D operator /(Raw2D &x,Raw2D &y);
+Raw2D operator +(Raw2D &x, float s);
+Raw2D operator +(Raw2D &x,Raw2D &y);
+Raw2D operator -(Raw2D &x,Raw2D &y);
+Raw2D operator -(Raw2D *x,Raw2D &y);
+Raw2D operator -(Raw2D &x,double s);
 /************************ end operation on Raw2D ***************************/
 #ifdef _WIN32
 #pragma endregion Raw2D_Opt

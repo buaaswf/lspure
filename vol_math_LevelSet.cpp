@@ -15,24 +15,21 @@ LevelSet::~LevelSet(void)
 }
 
 //*ImageF Dirac(ImageF x,float sigma);*/
-Raw2D& regFunction(Raw2D &s,int m,int n);
 Raw2D& cos(Raw2D &x);
-Raw2D& sin(Raw2D &s);
-Raw2D* Dirac(Raw2D *x,float sigma)
+Raw2D* sin(Raw2D *s);
+Raw2D Dirac(Raw2D *x,float sigma)
 {
-//IShowImg(*x);
-	Raw2D *ret=new Raw2D(x);
+	//IShowImg(*x);
+	Raw2D ret(x->getXsize(), x->getYsize());
 
 	//Raw2D *f=new Raw2D((255*255*(1.0/2.0)/sigma)*(cos(3.14*(*ret/sigma))+1));
-	Raw2D *f=new Raw2D(((1.0/2.0)/sigma)*(cos(3.14*(*ret/sigma))+1));
+	Raw2D f= ((1.0/2.0)/sigma)*(cos(3.14*(ret/sigma))+1);
 	//Raw2D *f=new Raw2D(((-1)**ret**ret)/4.0+255*2/3);
-	Raw2D *b=new Raw2D(regFunction(*ret,-sigma,sigma));
-	*f=*f**b;
-	ret=f;
-	//showImg(*f);
+	Raw2D b = regFunction(ret, -sigma, sigma);
+	ret = f*b;
 	//IShowImg(*ret);
-	return ret ;
-
+	
+	return ret;
 }
 /************************************************************************/
 /* natural                                                                     */
@@ -110,7 +107,6 @@ Raw2D* gradientxgc(Raw2D *g)
 	{
 		for(j=0;j<m;j++)
 		{
-
 			if(j>0)
 				temp1=j-1;
 			else 
@@ -120,12 +116,9 @@ Raw2D* gradientxgc(Raw2D *g)
 			else 
 				temp2=m-1;
 			ret->put(i,j,(g->get(i,temp2)-g->get(i,temp1))/2.0);
-
-
-
-
 		}
 	}
+
 	return ret;
 }
 /************************************************************************/
@@ -158,13 +151,14 @@ Raw2D* gradientxg(Raw2D *g)
 			}
 		}
 	}
-		return ret;
+		
+	return ret;
 }
 Raw2D* gradienty(Raw2D* g )
 {
 	int n=g->getXsize();
 	int m=g->getYsize();
-	Raw2D* ret=new Raw2D(g->getXsize(),g->getYsize());
+	Raw2D* ret=new Raw2D(n, m);
 	int i,j;
 	//PIXTYPE *gg=(*g).gety();
 	//PIXTYPE *p=(*ret).gety();
@@ -188,13 +182,12 @@ Raw2D* gradienty(Raw2D* g )
 		}
 	}
 	return ret;
-
 }
 Raw2D* gradientyg(Raw2D* g )
 {
 	int n=g->getXsize();
 	int m=g->getYsize();
-	Raw2D* ret=new Raw2D(g);
+	Raw2D* ret=new Raw2D(n, m);
 	int i,j;
 	for(i=0;i<n;i++)
 	{
@@ -223,7 +216,7 @@ Raw2D* gradientygc(Raw2D *g)
 {
 	int n=g->getXsize();
 	int m=g->getYsize();
-	Raw2D* ret=new Raw2D(g);
+	Raw2D* ret=new Raw2D(n, m);
 	int i,j;
 	int temp1,temp2;
 
@@ -240,20 +233,17 @@ Raw2D* gradientygc(Raw2D *g)
 				temp2=i+1;
 			else 
 				temp2=n-1;
-			ret->put(i,j,(g->get(temp2,j)-g->get(temp1,j))/2.0);
-
-
-
-
+			ret->put(i,j,(g->get(temp2,j) - g->get(temp1,j))/2.0);
 		}
 	}
+
 	return ret;
 }
 Raw2D* gradientygcorignal(Raw2D *g)
 {
 	int n=g->getXsize();
 	int m=g->getYsize();
-	Raw2D* ret=new Raw2D(g);
+	Raw2D* ret=new Raw2D(n, m);
 	int i,j;
 	int temp1,temp2;
 
@@ -276,10 +266,6 @@ Raw2D* gradientygcorignal(Raw2D *g)
 				cout<<val<<endl;
 			}
 			ret->put(i,j,val);
-
-
-
-
 		}
 	}
 	return ret;
@@ -300,7 +286,7 @@ Raw2D& cos(Raw2D &xdata)
 	return *x;
 }
 
-Raw2D* NeumannBoundCond(Raw2D *img)
+void NeumannBoundCond(Raw2D *img)
 {
 	int nrow=img->getXsize();
 	int ncol=img->getYsize();
@@ -330,8 +316,6 @@ Raw2D* NeumannBoundCond(Raw2D *img)
 			img->put(i,j,img->get(i,j));
 		}
 	}
-	return img;
-
 }
 
 Raw2D* ImageFSqrt(Raw2D &x,Raw2D &y)
@@ -354,11 +338,14 @@ Raw2D* ImageFSqrt(Raw2D &x,Raw2D &y)
 //curvature
 Raw2D& div(Raw2D &x, Raw2D &y)
 {
-	Raw2D *ret=new Raw2D(x.getXsize(),x.getYsize());
+	Raw2D ret(x.getXsize(),x.getYsize());
 	Raw2D *gradx = gradientxgc(&x),
-		*grady = gradientygc(&y);
-	*ret = -1.0*(*gradx + *grady);
-	return *ret;
+		  *grady = gradientygc(&y);
+	ret = -1.0*(*gradx + *grady);
+
+	delete gradx;
+	delete grady;
+	return ret;
 }
 
 
@@ -390,35 +377,36 @@ Raw2D* del2(Raw2D *phi)
 	return ret2;
 }
 
-Raw2D& regFunction(Raw2D &s,int m,int n)
+Raw2D regFunction(Raw2D &s,int m,int n)
 {
-	Raw2D *ss=new Raw2D(s);
-	//p=s.gety();
-	int l=ss->getXsize();
-	int k=ss->getYsize();
+	int l = s.getXsize(),
+		k = s.getYsize();
+	Raw2D ss(l, k);
 	PIXTYPE val=0;
 	for (i=0;i<l;i++)
 	{
 		for(j=0;j<k;j++)
 		{
-			val=ss->get(i,j);
+			val=ss.get(i,j);
 			if(val>=m && val<=n)
 			{
 				//ss->put(i,j,255);//unsigned char version
-				ss->put(i,j,1);
+				ss.put(i,j,1);
 			}
-			else if(ss->get(i,j)==m||ss->get(i,j)==n)
-				/*	ss->put(i,j,val);
-				else ss->put(i,j,val);*/
-				ss->put(i,j,0);
-			else ss->put(i,j,0);
+			else if(ss.get(i,j)==m||ss.get(i,j)==n) 
+			{
+				ss.put(i,j,0);
+			}
+			else 
+			{
+				ss.put(i,j,0);
+			}
 		}
-
 	}
 
-	return *ss;
-
+	return ss;
 }
+
 Raw2D* distReg_p2(Raw2D *phi)
 {
 	Raw2D *ret=new Raw2D(phi);
@@ -431,7 +419,7 @@ Raw2D* distReg_p2(Raw2D *phi)
 	Raw2D s(ImageFSqrt(*phi_x,*phi_y));
 	Raw2D &a=regFunction(s,0,1);
 	Raw2D &b=regFunction(s,1,10);//need to be changed.
-	Raw2D &ps=a*sin(2.0*pi*s)/(2.0*pi)+b*(s-1);
+	Raw2D &ps=a*(*sin(&(2.0*pi*s)))/(2.0*pi)+b*(s-1);
 	//IShowImg(ps);
 	Raw2D &dps=((-1.0*regFunction(ps,0,0)+1)*ps+regFunction(ps,0,0))/((-1.0*regFunction(s,0,0)+1)*s+regFunction(s,0,0));
 	/*IShowImg(dps);*/
@@ -443,21 +431,21 @@ Raw2D* distReg_p2(Raw2D *phi)
 	return ret;
 }
 
-Raw2D& sin(Raw2D &s)
+Raw2D* sin(Raw2D *s)
 {
 	//overload sin
-	Raw2D *ss=new Raw2D(s);
-	int m=s.getXsize();
-	int n=s.getYsize();
+	int m=s->getXsize();
+	int n=s->getYsize();
+	Raw2D *ss=new Raw2D(m,n);
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
-			ss->put(i,j,sin(double(s.get(i,j))));
+			ss->put(i,j,sin(double(s->get(i,j))));
 		}
 
 	}
-	return *ss;
+	return ss;
 }
 
 void write(Raw2D &destImg)
@@ -503,7 +491,7 @@ void LevelSet::initialg(Raw2D *g)
 //}
 
 /// \brief
-void LevelSet::drlse_edge(Raw2D *phi,Raw2D *g,float lambda,float mu,float alfa,float epsilon,int timestep, int iter,const char * potentialFunction)
+void LevelSet::drlse_edge(Raw2D *phi,Raw2D *g,float lambda,float mu,float alfa,float epsilon,int timestep, int iter,const char *potentialFunction)
 {
 	//IShowImg(*phi);
 	int m=g->getXsize();
@@ -528,18 +516,17 @@ void LevelSet::drlse_edge(Raw2D *phi,Raw2D *g,float lambda,float mu,float alfa,f
 		Raw2D *Nx = new Raw2D(*phi_x/(*s + smallNumber));
 		Raw2D *Ny = new Raw2D(*phi_y/(*s + smallNumber));
 		Raw2D *curvature = new Raw2D(div(*Nx,*Ny));
-		Raw2D *distRegTerm=new Raw2D(m,n);
+		Raw2D *distRegTerm = new Raw2D(m,n);
 		char *p1="single_well";
-		if (strcmp(potentialFunction,p1)+1)
+		if (0 == strcmp(potentialFunction, p1))
 		{
-		/*
-		 compute distance regularization term in equation (13) 
-		 with the single-well potential p1.
-		 */
+			/*
+			 compute distance regularization term in equation (13) 
+			 with the single-well potential p1.
+			 */
 			*distRegTerm= (4.0*(*del2(phi)) - (*curvature));
 		}
-		
-		else if (strcmp(potentialFunction,"double_well")+1)
+		else if (0 == strcmp(potentialFunction, "double_well"))
 		{
 			*distRegTerm=distReg_p2(phi);  // compute the distance regularization term in eqaution (13) with the double-well potential p2.
 		}
