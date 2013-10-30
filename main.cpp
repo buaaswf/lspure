@@ -14,11 +14,13 @@ int main()
 	//IplImage *source=NULL;
 	//source=cvLoadImage("G:\\geo hackthon\\geo\\levelset\\DRLSE_v0\\gourd.bmp",0);
 	//source=cvLoadImage("E:\\geo\\levelset\\DRLSE_v0\\gourddouble.bmp",0);
-	CImg<unsigned char> source("E:\\geo\\levelset\\DRLSE_v0\\test2.bmp");
+	CImg<unsigned char> source;//("E:\\geo\\levelset\\DRLSE_v0\\gourd.bmp");
+	source.load("E:\\geo\\levelset\\DRLSE_v0\\gourd.bmp");
+	//source.display();
 	//int x=source->height;
 	//int y=source->width;
-	int x=source.height();
-	int y=source.width();
+	int x=source.width();
+	int y=source.height();
 	PIXTYPE *p=new PIXTYPE[x*y];
 	PIXTYPE *q=new PIXTYPE[x*y];
 	for (int i=0;i<x;i++)
@@ -32,50 +34,54 @@ int main()
 
 	Raw2D *initial=new Raw2D(x,y,q);
 	Raw2D *raw2d=new Raw2D(x,y,p);
+	int inx=40;
+	int inxl=50;
+	int iny=25;
+	int inyl=35;
 	//cvReleaseImage(&source);
 /************************************************************************/
 /*  initial contour out of  region                                                                    */
 /************************************************************************/
 
-	for (int i=0;i<x;i++)
-	{
-		for (int j=0;j<y;j++)
-		{
-			if(i>10&&i<60&&j>9&&j<50)
-				initial->putXY(i*y+j,2.0);
-			else if (i<10||i>60||j<9||j>50)
-			{
-				initial->putXY(i*y+j,-2.0);
-			}
-
-			else	initial->putXY(i*y+j,-2.0);
-			//cout<<initial->get(i,j)<<endl;
-			
-		}
-		//cout<<endl;
-	}
-	/************************************************************************/
-	/* initial inside the region                                                                     */
-	/************************************************************************/
 	//for (int i=0;i<x;i++)
 	//{
 	//	for (int j=0;j<y;j++)
 	//	{
-	//		if(i>25&&i<35&&j>40&&j<50)
+	//		if(i>10&&i<60&&j>9&&j<50)
 	//			initial->putXY(i*y+j,2.0);
-	//		else if (i<25||i>35||j<40||j>50)
+	//		else if (i<10||i>60||j<9||j>50)
 	//		{
 	//			initial->putXY(i*y+j,-2.0);
 	//		}
 
 	//		else	initial->putXY(i*y+j,-2.0);
 	//		//cout<<initial->get(i,j)<<endl;
-
+	//		
 	//	}
 	//	//cout<<endl;
 	//}
+	/************************************************************************/
+	/* initial inside the region                                                                     */
+	/************************************************************************/
+	for (int i=0;i<x;i++)
+	{
+		for (int j=0;j<y;j++)
+		{
+			if(i>inx&&i<inxl&&j>iny&&j<inyl)
+				initial->putXY(i*y+j,-2.0);
+			else if (i<inx||i>inxl||j<iny||j>inyl)
+			{
+				initial->putXY(i*y+j,2.0);
+			}
+
+			else	initial->putXY(i*y+j,-2.0);
+			//cout<<initial->get(i,j)<<endl;
+
+		}
+		//cout<<endl;
+	}
 	//showImg(*initial);
-	//IShowImg(*initial);
+	IShowImg(*initial);
 	//showImg(*raw2d);
 	IShowImg(*raw2d);
 	//raw2d->guassConv(raw2d,2);
@@ -84,9 +90,9 @@ int main()
 	ls->initialg(raw2d);
 	//enum PotentialFunction{single_well = 1,double_well};
 	char const *pt="single_well";
-	int iter_outer=50;
+	int iter_outer=10;
 	
-	ls->drlse_edge(initial,raw2d,5.0,0.2,3,1.5,1,iter_outer,pt);
+	ls->drlse_edge(initial,raw2d,5.0,0.2,-3,1.5,1,iter_outer,pt);
 
 	 system("pause");
 }

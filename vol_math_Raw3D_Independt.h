@@ -117,7 +117,7 @@ public:				//---------------init fcns-------------
 
 	Raw2D operator*(const Raw2D& img)
 	{
-		return Raw2D(*this) *= img;
+		return  Raw2D(*this) *= img;
 	}
 
 	Raw2D operator*(const PIXTYPE val)

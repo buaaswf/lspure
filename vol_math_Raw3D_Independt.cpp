@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <stdio.h>
-
+#include "Filter.h"
 using namespace std;
 Raw3D_Independt::Raw3D_Independt(void)
 {
@@ -55,14 +55,14 @@ Raw2D::Raw2D( Raw2D *r)
 
 Raw2D::Raw2D(const Raw2D& r)
 {
-	if (this->xsize != r.getXsize() && this->ysize != r.getYsize())
-	{
+	//if (this->xsize != r.getXsize() && this->ysize != r.getYsize())
+	//{
 		this->xsize=r.xsize;
 		this->ysize=r.ysize;
-		if (this->data != NULL)
-			delete[] this->data;
+	//	//if (this->data != NULL)
+	//	//	delete[] this->data;
 		this->data=new PIXTYPE[xsize*ysize];
-	}
+	//}
 	memcpy(this->data, r.data, sizeof(PIXTYPE)*xsize*ysize);
 }
 
@@ -122,7 +122,8 @@ void rawarray(int xsize,int ysize,int const zsize,PIXTYPE *yy)
 			try
 			{
 				Raw2D *raw2D=new Raw2D(xsize,ysize,p);
-				raw2D->TrilateralFilter(raw2D,1);
+				//Filter *filter=new Filter();
+				//filter->TrilateralFilter(raw2D,1);
 				delete raw2D;
 			}
 			catch(std::bad_alloc)

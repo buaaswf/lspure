@@ -15,19 +15,21 @@ LevelSet::~LevelSet(void)
 }
 
 //*ImageF Dirac(ImageF x,float sigma);*/
-Raw2D& cos(Raw2D &x);
+Raw2D cos(Raw2D &x);
 Raw2D* sin(Raw2D *s);
 Raw2D Dirac(Raw2D *x,float sigma)
 {
 	//IShowImg(*x);
-	Raw2D ret(x->getXsize(), x->getYsize());
+	Raw2D ret(x);
 
 	//Raw2D *f=new Raw2D((255*255*(1.0/2.0)/sigma)*(cos(3.14*(*ret/sigma))+1));
-	Raw2D f= ((1.0/2.0)/sigma)*(cos(3.14*(ret/sigma))+1);
+	PIXTYPE temp=((1.0/2.0)/sigma);
+	Raw2D f= (cos((ret/sigma)*pi)+1)*temp;
+	//IShowImg(f);
 	//Raw2D *f=new Raw2D(((-1)**ret**ret)/4.0+255*2/3);
 	Raw2D b = regFunction(ret, -sigma, sigma);
 	ret = f*b;
-	//IShowImg(*ret);
+	//IShowImg(ret);
 	
 	return ret;
 }
@@ -99,7 +101,7 @@ Raw2D* gradientxgc(Raw2D *g)
 {
 	int n=g->getXsize();
 	int m=g->getYsize();
-	Raw2D* ret=new Raw2D(g);
+	Raw2D* ret=new Raw2D(n,m);
 	int i,j;
 	int temp1,temp2;
 
@@ -270,20 +272,21 @@ Raw2D* gradientygcorignal(Raw2D *g)
 	}
 	return ret;
 }
-Raw2D& cos(Raw2D &xdata)
+Raw2D cos(Raw2D &xdata)
 {
-	Raw2D *x=new Raw2D(xdata);
-	int m=x->getXsize();
-	int n=x->getYsize();
+	
+	int m=xdata.getXsize();
+	int n=xdata.getYsize();
+	Raw2D x=new Raw2D(m,n);
 	for (i=0;i<m;i++)
 	{
 		for(j=0;j<n;j++)
 		{
-			x->put(i,j,cos(float(x->get(i,j))));
+			x.put(i,j,cos(float(xdata.get(i,j))));
 		}
 
 	}
-	return *x;
+	return x;
 }
 
 void NeumannBoundCond(Raw2D *img)
@@ -318,9 +321,9 @@ void NeumannBoundCond(Raw2D *img)
 	}
 }
 
-Raw2D* ImageFSqrt(Raw2D &x,Raw2D &y)
+Raw2D ImageFSqrt(Raw2D &x,Raw2D &y)
 {
-	Raw2D  *ret = new Raw2D (x);
+	Raw2D  ret = new Raw2D (x);
 	PIXTYPE val=0;
 	int m=x.getXsize();
 	int n=x.getYsize();
@@ -329,19 +332,19 @@ Raw2D* ImageFSqrt(Raw2D &x,Raw2D &y)
 		for(j=0;j<n;j++)
 		{
 			val=sqrt(PIXTYPE(x.get(i,j)*x.get(i,j) + y.get(i,j)*y.get(i,j)));
-			ret->put(i,j,val);
+			ret.put(i,j,val);
 		}
 	}
 	return ret;
 }
 
 //curvature
-Raw2D& div(Raw2D &x, Raw2D &y)
+Raw2D div(Raw2D &x, Raw2D &y)
 {
 	Raw2D ret(x.getXsize(),x.getYsize());
 	Raw2D *gradx = gradientxgc(&x),
 		  *grady = gradientygc(&y);
-	ret = -1.0*(*gradx + *grady);
+	ret = (*gradx + *grady);
 
 	delete gradx;
 	delete grady;
@@ -381,19 +384,19 @@ Raw2D regFunction(Raw2D &s,int m,int n)
 {
 	int l = s.getXsize(),
 		k = s.getYsize();
-	Raw2D ss(l, k);
+	Raw2D ss(l,k);
 	PIXTYPE val=0;
 	for (i=0;i<l;i++)
 	{
 		for(j=0;j<k;j++)
 		{
-			val=ss.get(i,j);
+			val=s.get(i,j);
 			if(val>=m && val<=n)
 			{
 				//ss->put(i,j,255);//unsigned char version
 				ss.put(i,j,1);
 			}
-			else if(ss.get(i,j)==m||ss.get(i,j)==n) 
+			else if(s.get(i,j)==m||s.get(i,j)==n) 
 			{
 				ss.put(i,j,0);
 			}
@@ -410,7 +413,6 @@ Raw2D regFunction(Raw2D &s,int m,int n)
 Raw2D* distReg_p2(Raw2D *phi)
 {
 	Raw2D *ret=new Raw2D(phi);
-	//IShowImg(*phi);
 	int m=phi->getXsize();
 	int n=phi->getYsize();
 	Raw2D *phi_x=new Raw2D(gradientxgc(phi));
@@ -419,13 +421,13 @@ Raw2D* distReg_p2(Raw2D *phi)
 	Raw2D s(ImageFSqrt(*phi_x,*phi_y));
 	Raw2D &a=regFunction(s,0,1);
 	Raw2D &b=regFunction(s,1,10);//need to be changed.
-	Raw2D &ps=a*(*sin(&(2.0*pi*s)))/(2.0*pi)+b*(s-1);
+	Raw2D &ps=a*(*sin(&(s*2.0*pi)))/(2.0*pi)+b*(s-1);
 	//IShowImg(ps);
-	Raw2D &dps=((-1.0*regFunction(ps,0,0)+1)*ps+regFunction(ps,0,0))/((-1.0*regFunction(s,0,0)+1)*s+regFunction(s,0,0));
+	Raw2D &dps=((regFunction(ps,0,0)*(-1)+1)*ps+regFunction(ps,0,0))/((regFunction(s,0,0)*(-1)+1)*s+regFunction(s,0,0));
 	/*IShowImg(dps);*/
 	Raw2D &div2=div(dps**phi_x-*phi_x,dps**phi_y-*phi_y);
 	//IShowImg(div2);
-	Raw2D &f=1.0*div2-4.0**del2(phi);
+	Raw2D &f=div2-*del2(phi)*4.0;
 	//IShowImg(f);
 	*ret=f;
 	return ret;
@@ -460,7 +462,7 @@ void LevelSet::initialg(Raw2D *g)
 	Raw2D *gx=gradientxgc(g);
 	Raw2D *gy=gradientygc(g);
 	//g=*ret;
-	*g = (*gx)*(*gx)+(*gy)*(*gy);
+	*g = (*gx)* (*gx)+(*gy)*(*gy);
 	//  add( multi(gx,gx), multi(gy, gy))
 	//IShowImg(g);
 	//g=(255/(g+1));//or  unsigned char version
@@ -499,22 +501,23 @@ void LevelSet::drlse_edge(Raw2D *phi,Raw2D *g,float lambda,float mu,float alfa,f
 	//IShowImg(g);
 	Raw2D *vx=gradientxgc(g);
 	Raw2D *vy=gradientygc(g);
-	*vx=100.0 * (*vx);
-	*vy=100.0 * (*vy);
+	*vx=(*vx);
+	*vy=(*vy);
 	//IShowImg(*vx);
 	//IShowImg(*vy);
 	Raw2D *diracPhi;
+	Raw2D *areaTerm;
+	Raw2D *edgeTerm;
 
 	for(int i=0;i<iter;i++)
 	{
 		NeumannBoundCond(phi);
-		//IShowImg(*phi);
 		Raw2D *phi_x = gradientxgc(phi);
 		Raw2D *phi_y = gradientygc(phi);
-		Raw2D *s = ImageFSqrt(*phi_x, *phi_y);
+		Raw2D s = ImageFSqrt(*phi_x, *phi_y);
 		float smallNumber=1e-10;
-		Raw2D *Nx = new Raw2D(*phi_x/(*s + smallNumber));
-		Raw2D *Ny = new Raw2D(*phi_y/(*s + smallNumber));
+		Raw2D *Nx = new Raw2D(*phi_x/(s + smallNumber));
+		Raw2D *Ny = new Raw2D(*phi_y/(s + smallNumber));
 		Raw2D *curvature = new Raw2D(div(*Nx,*Ny));
 		Raw2D *distRegTerm = new Raw2D(m,n);
 		char *p1="single_well";
@@ -524,7 +527,7 @@ void LevelSet::drlse_edge(Raw2D *phi,Raw2D *g,float lambda,float mu,float alfa,f
 			 compute distance regularization term in equation (13) 
 			 with the single-well potential p1.
 			 */
-			*distRegTerm= (4.0*(*del2(phi)) - (*curvature));
+			*distRegTerm= ((*del2(phi))*4.0 - (*curvature));
 		}
 		else if (0 == strcmp(potentialFunction, "double_well"))
 		{
@@ -533,29 +536,32 @@ void LevelSet::drlse_edge(Raw2D *phi,Raw2D *g,float lambda,float mu,float alfa,f
 		else printf("EEROR");
 		
 		diracPhi=new Raw2D(Dirac(phi,epsilon));
-		Raw2D* areaTerm=new Raw2D(( (*g) *(*diracPhi))); 
-		Raw2D  *edgeTerm=new Raw2D(m,n);
-		*edgeTerm = (*diracPhi) * ((*vx) * (*Nx))+((*vy) * (*Ny)) + (*diracPhi) * ( (*g) * (*curvature));
-		*phi=*phi + double(timestep)*(mu*(*distRegTerm) +lambda*(*edgeTerm) + alfa*(*areaTerm));
+		areaTerm=new Raw2D(( (*g) *(*diracPhi))); 
+		edgeTerm=new Raw2D(m,n);
+		*edgeTerm = (*diracPhi) * ((*vx) * (*Nx)+(*vy) * (*Ny)) + (*diracPhi) * ( (*g) * (*curvature));
+		*phi=*phi +((*distRegTerm)*mu* double(timestep) +(*edgeTerm)*lambda + (*areaTerm)*alfa);
 		//IShowImg(*distRegTerm);
 		//IShowImg(*edgeTerm);
 		//IShowImg(*areaTerm);
-		//IShowImg(*diracPhi);
+		
 		//IShowImg(*phi);
-		//IShowImg(4.0*(*del2(phi)));
+		//IShowImg((*del2(phi))*4.0);
 		//IShowImg(*curvature);
-		//IShowImg(phi_x);
-		//IShowImg(phi_y);
+		//IShowImg(*phi_x);
+		//IShowImg(*phi_y);
 		//IShowImg(*Nx);
 		//IShowImg(*Ny);
-		//IShowImg(g);
-		//IShowImg(*s);
+		//IShowImg(*g);
+		//IShowImg(s);
 
 		//phi_0=*phi;
 		//IShowImg(*phi);
 		delete phi_x;
 		delete phi_y;
 	}	
+	//IShowImg(*diracPhi);
+	//IShowImg(*edgeTerm);
+	//IShowImg(*areaTerm);
 	IShowImg(*phi);
 	delete vx;
 	delete vy;
