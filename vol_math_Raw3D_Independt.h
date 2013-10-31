@@ -146,7 +146,7 @@ public:				//---------------init fcns-------------
 
 	Raw2D operator/(const PIXTYPE val)
 	{
-		return Raw2D(*this) *= val;
+		return Raw2D(*this) /= val;
 	}
 
 	friend Raw2D operator/(const PIXTYPE val, const Raw2D& img);

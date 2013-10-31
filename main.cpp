@@ -38,6 +38,10 @@ int main()
 	int inxl=50;
 	int iny=25;
 	int inyl=35;
+	//int inx=10;//ÉÏÏÂ
+	//int inxl=70;
+	//int iny=10;//×óÓÒ
+	//int inyl=50;
 	//cvReleaseImage(&source);
 /************************************************************************/
 /*  initial contour out of  region                                                                    */
@@ -90,7 +94,7 @@ int main()
 	ls->initialg(raw2d);
 	//enum PotentialFunction{single_well = 1,double_well};
 	char const *pt="single_well";
-	int iter_outer=10;
+	int iter_outer=120;
 	
 	ls->drlse_edge(initial,raw2d,5.0,0.2,-3,1.5,1,iter_outer,pt);
 

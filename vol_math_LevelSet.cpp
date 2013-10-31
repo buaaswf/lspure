@@ -1,7 +1,7 @@
 #include "vol_math_LevelSet.h"
 
 #include <iostream>
-#define pi 3.14
+#define pi 3.141592653
 #include<math.h>
 
 using namespace std;
@@ -17,17 +17,17 @@ LevelSet::~LevelSet(void)
 //*ImageF Dirac(ImageF x,float sigma);*/
 Raw2D cos(Raw2D &x);
 Raw2D* sin(Raw2D *s);
-Raw2D Dirac(Raw2D *x,float sigma)
+Raw2D Dirac(Raw2D *x,double sigma)
 {
-	//IShowImg(*x);
 	Raw2D ret(x);
-
-	//Raw2D *f=new Raw2D((255*255*(1.0/2.0)/sigma)*(cos(3.14*(*ret/sigma))+1));
 	PIXTYPE temp=((1.0/2.0)/sigma);
+	double temp2=(cos((2/sigma)*pi)+1)*temp;
 	Raw2D f= (cos((ret/sigma)*pi)+1)*temp;
 	//IShowImg(f);
 	//Raw2D *f=new Raw2D(((-1)**ret**ret)/4.0+255*2/3);
+	//IShowImg(ret);
 	Raw2D b = regFunction(ret, -sigma, sigma);
+	//IShowImg(b);
 	ret = f*b;
 	//IShowImg(ret);
 	
@@ -282,7 +282,7 @@ Raw2D cos(Raw2D &xdata)
 	{
 		for(j=0;j<n;j++)
 		{
-			x.put(i,j,cos(float(xdata.get(i,j))));
+			x.put(i,j,cos(double(xdata.get(i,j))));
 		}
 
 	}
@@ -358,29 +358,28 @@ Raw2D* del2(Raw2D *phi)
 	int n=phi->getYsize();
 	Raw2D *ret2=new Raw2D(m, n);
 
-	for (i=0;i<m;i++)
+	for (int i=0;i<m;i++)
 	{
-		for(j=0;j<n;j++)
+		for(int j=0;j<n;j++)
 		{
 			
 			if (i+1<m && j+1<n && i-1>=0 && j-1>=0)
 			{
-				int value = 0.25*(phi->get(i+1, j) + phi->get(i-1, j) + phi->get(i, j-1) + phi->get(i, j+1) - 4*(phi->get(i,j)));
-				if (value >= 0)
-					ret2->put(i, j, (PIXTYPE)value);
-				else
-					ret2->put(i, j, value);
+				PIXTYPE value = 0.25*(phi->get(i+1, j) + phi->get(i-1, j) + phi->get(i, j-1) + phi->get(i, j+1) - 4*(phi->get(i,j)));
+				//if(value!=0)
+				//	cout<<value<<endl;
+				ret2->put(i, j, (PIXTYPE)value);
 			}
 			else 
 			{
-				ret2->put(i, j, 0);
+				ret2->put(i, j,0);
 			}
 		}
 	}
 	return ret2;
 }
 
-Raw2D regFunction(Raw2D &s,int m,int n)
+Raw2D regFunction(Raw2D &s,double m,double n)
 {
 	int l = s.getXsize(),
 		k = s.getYsize();
@@ -508,7 +507,7 @@ void LevelSet::drlse_edge(Raw2D *phi,Raw2D *g,float lambda,float mu,float alfa,f
 	Raw2D *diracPhi;
 	Raw2D *areaTerm;
 	Raw2D *edgeTerm;
-
+	Raw2D *distRegTerm = new Raw2D(m,n);
 	for(int i=0;i<iter;i++)
 	{
 		NeumannBoundCond(phi);
@@ -519,7 +518,7 @@ void LevelSet::drlse_edge(Raw2D *phi,Raw2D *g,float lambda,float mu,float alfa,f
 		Raw2D *Nx = new Raw2D(*phi_x/(s + smallNumber));
 		Raw2D *Ny = new Raw2D(*phi_y/(s + smallNumber));
 		Raw2D *curvature = new Raw2D(div(*Nx,*Ny));
-		Raw2D *distRegTerm = new Raw2D(m,n);
+	
 		char *p1="single_well";
 		if (0 == strcmp(potentialFunction, p1))
 		{
@@ -527,26 +526,30 @@ void LevelSet::drlse_edge(Raw2D *phi,Raw2D *g,float lambda,float mu,float alfa,f
 			 compute distance regularization term in equation (13) 
 			 with the single-well potential p1.
 			 */
-			*distRegTerm= ((*del2(phi))*4.0 - (*curvature));
+		*distRegTerm= ((*del2(phi))*4.0 - (*curvature));
 		}
 		else if (0 == strcmp(potentialFunction, "double_well"))
 		{
 			*distRegTerm=distReg_p2(phi);  // compute the distance regularization term in eqaution (13) with the double-well potential p2.
 		}
 		else printf("EEROR");
-		
 		diracPhi=new Raw2D(Dirac(phi,epsilon));
 		areaTerm=new Raw2D(( (*g) *(*diracPhi))); 
 		edgeTerm=new Raw2D(m,n);
-		*edgeTerm = (*diracPhi) * ((*vx) * (*Nx)+(*vy) * (*Ny)) + (*diracPhi) * ( (*g) * (*curvature));
+		Raw2D edge1=(*diracPhi) * ((*vx) * (*Nx)+(*vy) * (*Ny));
+		Raw2D edge2=(*diracPhi) * ( (*g) * (*curvature));
+		//IShowImg(*g);
+		//IShowImg(edge2);
+		*edgeTerm =edge1+edge2;
 		*phi=*phi +((*distRegTerm)*mu* double(timestep) +(*edgeTerm)*lambda + (*areaTerm)*alfa);
 		//IShowImg(*distRegTerm);
 		//IShowImg(*edgeTerm);
 		//IShowImg(*areaTerm);
-		
-		//IShowImg(*phi);
-		//IShowImg((*del2(phi))*4.0);
-		//IShowImg(*curvature);
+		//IShowImg(*vx);
+		//IShowImg(*vx);
+		////IShowImg(*phi);
+	
+		/*IShowImg(*curvature);*/
 		//IShowImg(*phi_x);
 		//IShowImg(*phi_y);
 		//IShowImg(*Nx);
@@ -562,7 +565,9 @@ void LevelSet::drlse_edge(Raw2D *phi,Raw2D *g,float lambda,float mu,float alfa,f
 	//IShowImg(*diracPhi);
 	//IShowImg(*edgeTerm);
 	//IShowImg(*areaTerm);
+	initialg(phi);
 	IShowImg(*phi);
+	//IShowImg(*distRegTerm);
 	delete vx;
 	delete vy;
 

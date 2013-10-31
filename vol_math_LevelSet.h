@@ -17,6 +17,6 @@ public:
 	void testout(Raw2D *ret);
 };
 
-Raw2D regFunction(Raw2D &s,int m,int n);
+Raw2D regFunction(Raw2D &s,double m,double n);
 
 #endif  //_VOL_MATH_LEVELSET_H_
