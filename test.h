@@ -13,12 +13,15 @@ static void IShowImg(Raw2D& img)
 	cimg_for_insideXY(sourceimage,x,y,0)
 	{
 		PIXTYPE val=img.get(x,y);
-		if (val<0.4)
+		if (val<1&&val>0)
 		{
 			sourceimage(x,y,0)=(double)(val);
 		}
-		
-		
+		else if (val>=1)
+		{
+			sourceimage(x,y,0)=(double)(1);
+	}
+
 	}
 	sourceimage.display("hello");
 }

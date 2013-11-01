@@ -3,6 +3,7 @@
 #include <iostream>
 #include <crtdbg.h> 
 #include "CImg.h" 
+#include "Filter.h"
 using namespace cimg_library;
 using namespace std;
 
@@ -15,7 +16,8 @@ int main()
 	//source=cvLoadImage("G:\\geo hackthon\\geo\\levelset\\DRLSE_v0\\gourd.bmp",0);
 	//source=cvLoadImage("E:\\geo\\levelset\\DRLSE_v0\\gourddouble.bmp",0);
 	CImg<unsigned char> source;//("E:\\geo\\levelset\\DRLSE_v0\\gourd.bmp");
-	source.load("E:\\geo\\levelset\\DRLSE_v0\\gourd.bmp");
+	source.load("gourd.bmp");
+	/*source.load("E:\\geo\\levelset\\DRLSE_v0\\gourd.bmp");*/
 	//source.display();
 	//int x=source->height;
 	//int y=source->width;
@@ -34,14 +36,14 @@ int main()
 
 	Raw2D *initial=new Raw2D(x,y,q);
 	Raw2D *raw2d=new Raw2D(x,y,p);
-	int inx=40;
-	int inxl=50;
-	int iny=25;
-	int inyl=35;
-	//int inx=10;//上下
-	//int inxl=70;
-	//int iny=10;//左右
-	//int inyl=50;
+	//int inx=40;
+	//int inxl=50;
+	//int iny=25;
+	//int inyl=35;
+	int inx=10;//上下
+	int inxl=70;
+	int iny=10;//左右
+	int inyl=50;
 	//cvReleaseImage(&source);
 /************************************************************************/
 /*  initial contour out of  region                                                                    */
@@ -88,7 +90,9 @@ int main()
 	IShowImg(*initial);
 	//showImg(*raw2d);
 	IShowImg(*raw2d);
-	//raw2d->guassConv(raw2d,2);
+	Filter filter;
+	filter.guassFilter(raw2d,2);
+	IShowImg(*raw2d);
 	//Raw2D *data=new Raw2D(raw2d);
 	LevelSet *ls=new LevelSet();
 	ls->initialg(raw2d);
@@ -96,7 +100,7 @@ int main()
 	char const *pt="single_well";
 	int iter_outer=120;
 	
-	ls->drlse_edge(initial,raw2d,5.0,0.2,-3,1.5,1,iter_outer,pt);
+	ls->drlse_edge(initial,raw2d,5.0,0.2,3,1.5,1,iter_outer,pt);
 
 	 system("pause");
 }

@@ -1,9 +1,10 @@
 #include "vol_math_LevelSet.h"
+#include "CImg.h" 
 
 #include <iostream>
 #define pi 3.141592653
 #include<math.h>
-
+using namespace cimg_library;
 using namespace std;
 PIXTYPE *p;
 PIXTYPE	*q;
@@ -508,6 +509,8 @@ void LevelSet::drlse_edge(Raw2D *phi,Raw2D *g,float lambda,float mu,float alfa,f
 	Raw2D *areaTerm;
 	Raw2D *edgeTerm;
 	Raw2D *distRegTerm = new Raw2D(m,n);
+	CImg <double> sourceimage(phi->getXsize(),phi->getYsize(),1,1,0);
+	CImgDisplay disp(256,256,"",1);
 	for(int i=0;i<iter;i++)
 	{
 		NeumannBoundCond(phi);
@@ -559,13 +562,28 @@ void LevelSet::drlse_edge(Raw2D *phi,Raw2D *g,float lambda,float mu,float alfa,f
 
 		//phi_0=*phi;
 		//IShowImg(*phi);
+		
+		cimg_for_insideXY(sourceimage,x,y,0)
+	{
+		PIXTYPE val=phi->get(x,y);
+		if (val>0&&val<1)
+		{
+			sourceimage(x,y,0)=(double)(val);
+		}
+		else if (val>=1)
+		{
+			sourceimage(x,y,0)=(double)(1);
+	}
+
+	}
+		sourceimage.display(disp.wait(20));
 		delete phi_x;
 		delete phi_y;
 	}	
 	//IShowImg(*diracPhi);
 	//IShowImg(*edgeTerm);
 	//IShowImg(*areaTerm);
-	initialg(phi);
+	//initialg(phi);
 	IShowImg(*phi);
 	//IShowImg(*distRegTerm);
 	delete vx;
